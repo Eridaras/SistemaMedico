@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inventario - Detalle de Producto</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+      }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2D6A9D",
+              "background-light": "#f8f9fa",
+              "background-dark": "#111921",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-10 py-3 bg-white dark:bg-background-dark sticky top-0 z-10">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z"></path>
+</svg>
+</div>
+<h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">ConsultorioApp</h2>
+</div>
+<div class="flex flex-1 justify-center gap-8">
+<div class="flex items-center gap-9">
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal" href="#">Historia Clínica</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal" href="#">Agendamiento</a>
+<a class="text-primary dark:text-primary text-sm font-bold leading-normal" href="#">Inventario</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal" href="#">Facturación</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD3awDbw4unGIthsaUA0WgE2_vYLqW4ogJ1421XrhkOWETQP0jK1d50R2gcUw1RL8XQvu9QVKtfAW8JKGPOi9dSWGhVy_TK9zVV1meSvHQHwWlWPVkxvqMYxjalXOsljDIm_ej5plajZeYXgB7nakNyqtxRjVv54tkPCJNRuvJVN6FJs1vj7j4PB_QNWCyCbe4KO7JJFusNG7ZHVcoAOOfLe-c_hoxo0g73FshTnviiAXZ-6Nvf_Kh8EHvBxP3-fxTsvMimtYUENqSp");'></div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="layout-container flex h-full grow flex-col">
+<div class="px-10 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col w-full max-w-6xl flex-1 gap-6">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap gap-2 px-4">
+<a class="text-gray-500 dark:text-gray-400 hover:text-primary text-sm font-medium leading-normal" href="#">Inventario</a>
+<span class="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">/</span>
+<a class="text-gray-500 dark:text-gray-400 hover:text-primary text-sm font-medium leading-normal" href="#">Lista de Productos</a>
+<span class="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">/</span>
+<span class="text-gray-900 dark:text-white text-sm font-medium leading-normal">Gasa Estéril 10x10cm</span>
+</div>
+<!-- PageHeading and Actions -->
+<div class="flex flex-wrap items-center justify-between gap-4 px-4">
+<p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">Gasa Estéril 10x10cm</p>
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center gap-2 rounded-lg h-10 px-4 text-sm font-bold bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600">
+<span class="material-symbols-outlined text-lg">edit</span>
+                                Editar Producto
+                            </button>
+<button class="flex items-center justify-center gap-2 rounded-lg h-10 px-4 text-sm font-bold bg-red-600 text-white hover:bg-red-700">
+<span class="material-symbols-outlined text-lg">delete</span>
+                                Eliminar
+                            </button>
+</div>
+</div>
+<!-- Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-4">
+<!-- Left Column: Image -->
+<div class="lg:col-span-1">
+<div class="w-full bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-200 dark:border-gray-700">
+<div class="w-full bg-center bg-no-repeat bg-cover aspect-square rounded-lg" data-alt="Image of a sterile gauze pack" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCzt6UxEy3pesRYSekknNNC1YfQneq61vSv4KydOKKO7ym98FFGHi7-qa7rViUSYjTxmOzqHB_FoHNmaMpHDjST792GVRD4IJTM9HtBAgJNnGndBg2HxmOjxEavmyAcgicMFNYZuWK7IS4_4APpXjeRU7NMqB0GBxK20gfvOVVfEd9gK1HEoMhyYHnQbGQzhapjDaOf6gWaZpNLqiHg_UuYU98w0nvUWXrqJ_aKRZLgNowsCXowVyFXdnK37X4HnPFxHmMvmcoDLdYf");'></div>
+</div>
+</div>
+<!-- Right Column: Details -->
+<div class="lg:col-span-2 flex flex-col gap-8">
+<!-- Product Information Section -->
+<div class="bg-white dark:bg-gray-800/50 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-6">Información del Producto</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">SKU/Código</label>
+<p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">GS-1010-ST</p>
+</div>
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Categoría</label>
+<p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">Insumos Médicos Descartables</p>
+</div>
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Proveedor/Marca</label>
+<p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">MediPro Supplies</p>
+</div>
+<div class="md:col-span-2">
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Descripción</label>
+<p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Gasa estéril de algodón de alta absorción, en empaque individual. Ideal para limpieza de heridas, curaciones y procedimientos menores. Medidas de 10x10 cm.</p>
+</div>
+</div>
+</div>
+<!-- Inventory & Pricing Section -->
+<div class="bg-white dark:bg-gray-800/50 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-6">Inventario y Precios</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Cantidad en Stock</label>
+<p class="text-2xl font-bold text-gray-800 dark:text-gray-200 mt-1">125 unidades</p>
+</div>
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Estado</label>
+<div class="mt-2 flex items-center">
+<span class="inline-flex items-center gap-2 rounded-full bg-green-100 dark:bg-green-900/50 px-3 py-1 text-xs font-bold text-green-700 dark:text-green-300">
+<span class="size-2 rounded-full bg-green-500"></span>
+                                                En Stock
+                                            </span>
+</div>
+</div>
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Alerta de Stock Bajo</label>
+<p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">20 unidades</p>
+</div>
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Ubicación</label>
+<p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">Almacén B, Estante 3</p>
+</div>
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Precio de Costo</label>
+<p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">$25.00</p>
+</div>
+<div>
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Precio de Venta</label>
+<p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">$45.00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

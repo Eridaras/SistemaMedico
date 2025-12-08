@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Plantilla de Notificación (Email)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400,FILL@0&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#2A7AAA",
+            "background-light": "#f4f7f9",
+            "background-dark": "#111921",
+            "text-light": "#333333",
+            "text-dark": "#f0f2f4",
+            "card-light": "#ffffff",
+            "card-dark": "#1e293b",
+            "border-light": "#e2e8f0",
+            "border-dark": "#334155"
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+  </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 sm:px-8 md:px-16 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<div class="bg-card-light dark:bg-card-dark rounded-lg overflow-hidden">
+<div class="bg-primary p-6 md:p-8">
+<div class="flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-white text-3xl">local_hospital</span>
+<p class="text-white text-xl font-bold">Centro Médico SaludVital</p>
+</div>
+</div>
+<div class="p-6 md:p-8">
+<h2 class="text-text-light dark:text-text-dark tracking-tight text-[28px] font-bold leading-tight text-left pb-3">Confirmación de su Cita</h2>
+<p class="text-gray-600 dark:text-gray-400 text-base font-normal leading-normal pb-6">Estimado [Nombre del Paciente], Le confirmamos que su cita ha sido agendada con éxito. A continuación, encontrará los detalles de su próxima consulta.</p>
+<div class="border border-border-light dark:border-border-dark rounded-xl mb-8">
+<div class="p-6">
+<p class="text-text-light dark:text-text-dark text-lg font-bold pb-4">Detalles de su Cita</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-gray-500 mt-0.5">calendar_month</span>
+<div>
+<p class="text-text-light dark:text-text-dark font-medium">Fecha y Hora</p>
+<p class="text-gray-500 dark:text-gray-400">Lunes, 21 de Octubre, 2024 - 10:30 AM</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-gray-500 mt-0.5">stethoscope</span>
+<div>
+<p class="text-text-light dark:text-text-dark font-medium">Profesional</p>
+<p class="text-gray-500 dark:text-gray-400">Dr. Alejandro Vargas</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-gray-500 mt-0.5">medical_services</span>
+<div>
+<p class="text-text-light dark:text-text-dark font-medium">Servicio</p>
+<p class="text-gray-500 dark:text-gray-400">Consulta General</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-gray-500 mt-0.5">location_on</span>
+<div>
+<p class="text-text-light dark:text-text-dark font-medium">Ubicación</p>
+<p class="text-gray-500 dark:text-gray-400">Av. Principal 123, Consultorio 405, Ciudad</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-start gap-4 pb-8">
+<button class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg bg-[#28A745] px-6 py-3 text-base font-medium text-white shadow-sm transition-colors hover:bg-opacity-90">
+<span class="material-symbols-outlined">check_circle</span>
+                Confirmar Asistencia
+              </button>
+<button class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark px-6 py-3 text-base font-medium text-text-light dark:text-text-dark shadow-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-700">
+<span class="material-symbols-outlined">edit_calendar</span>
+                Reprogramar o Cancelar
+              </button>
+</div>
+<div class="space-y-6">
+<div>
+<h3 class="text-text-light dark:text-text-dark tracking-light text-xl font-bold leading-tight pb-2">Política de Cancelación</h3>
+<p class="text-gray-600 dark:text-gray-400 text-sm font-normal leading-relaxed">
+                  Le recordamos que puede cancelar o reprogramar su cita con hasta 24 horas de antelación sin ningún cargo. Las cancelaciones realizadas con menos de 24 horas de aviso podrían estar sujetas a una tarifa administrativa. Agradecemos su comprensión y cooperación.
+                </p>
+</div>
+<div>
+<h3 class="text-text-light dark:text-text-dark tracking-light text-xl font-bold leading-tight pb-2">Información de Contacto</h3>
+<p class="text-gray-600 dark:text-gray-400 text-sm font-normal leading-relaxed">
+                  Si tiene alguna pregunta o necesita asistencia, no dude en contactarnos. <br/>
+                  Teléfono: +1 (234) 567-890 <br/>
+                  Email: <a class="text-primary hover:underline" href="mailto:info@saludvital.com">info@saludvital.com</a> <br/>
+                  Sitio Web: <a class="text-primary hover:underline" href="#">www.saludvital.com</a>
+</p>
+</div>
+</div>
+<div class="border-t border-border-light dark:border-border-dark mt-8 pt-6 text-center">
+<p class="text-gray-500 dark:text-gray-400 text-xs">
+                © 2024 Centro Médico SaludVital. Todos los derechos reservados. <br/>
+                Av. Principal 123, Ciudad, País.
+              </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></body></html>

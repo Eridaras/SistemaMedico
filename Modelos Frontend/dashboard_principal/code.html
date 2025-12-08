@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard Principal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings:
+        'FILL' 1
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#197fe6",
+            "background-light": "#f6f7f8",
+            "background-dark": "#111921",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="flex h-screen w-full">
+<aside class="flex w-64 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-background-dark">
+<div class="flex h-16 shrink-0 items-center gap-4 border-b border-gray-200 px-6 dark:border-gray-800">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_330)">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</g>
+<defs>
+<clipPath id="clip0_6_330">
+<rect fill="white" height="48" width="48"></rect>
+</clipPath>
+</defs>
+</svg>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] text-gray-900 dark:text-white">Clínica Bienestar</h2>
+</div>
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Profile picture of Dr. Elena Vargas" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDXQC5a7tykWxIi6RHgQaM0SCVTR1MQLJoRC-AsVYhDaz4YZUfhLJsDTvUzW-M3kDUpJKqKP5TOfMqcYiBURVagtvkMMkfJlHs0JWNZ1exAyiCyZBALOWEs9DqvksJI-3GlVcmVls5INbDSiNzAFwEvuqixVIuq2jYGb48inwNOvlfgcmszcdBDb7ab__TQbGd52UvqmFJG3CgsCBvr1R7hU6GZyYAFBgJ0tIFQCEYN8ZNfIhilVG3ta5hPfiffOthJtLl7YYv8TPtg");'></div>
+<div class="flex flex-col">
+<h1 class="text-base font-medium leading-normal text-gray-900 dark:text-gray-100">Dr. Elena Vargas</h1>
+<p class="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">Médico General</p>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary dark:bg-primary/20" href="#">
+<span class="material-symbols-outlined fill text-primary">dashboard</span>
+<p class="text-sm font-medium leading-normal text-primary">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">folder_shared</span>
+<p class="text-sm font-medium leading-normal">Historia Clínica</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<p class="text-sm font-medium leading-normal">Agendamiento</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<p class="text-sm font-medium leading-normal">Inventario</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<p class="text-sm font-medium leading-normal">Facturación</p>
+</a>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<button class="flex h-10 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold leading-normal tracking-[0.015em] text-white hover:bg-primary/90">
+<span class="truncate">Nueva Cita</span>
+</button>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-sm font-medium leading-normal">Configuración</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">help</span>
+<p class="text-sm font-medium leading-normal">Ayuda</p>
+</a>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex flex-1 flex-col overflow-hidden">
+<header class="flex h-16 shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 bg-white px-8 dark:border-gray-800 dark:bg-background-dark">
+<label class="relative flex min-w-40 max-w-sm flex-col !h-10">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-gray-500 dark:text-gray-400 flex border-none bg-background-light dark:bg-gray-800 items-center justify-center pl-3 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-gray-100 focus:outline-0 focus:ring-2 focus:ring-primary/50 border-none bg-background-light dark:bg-gray-800 focus:border-none h-full placeholder:text-gray-500 dark:placeholder:text-gray-400 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Buscar pacientes, citas..." value=""/>
+</div>
+</label>
+<div class="flex flex-1 items-center justify-end gap-4">
+<button class="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-transparent text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Profile picture of Dr. Elena Vargas" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA6_81Hyk9n7oMHV9KD9rQeH3VYBjxqpiy74K-yk3xx3pER8kSqruQApZjBc8A46dBBGCYoz3p6jNijW5ysM95e4IXEWvClbH8Z9TfUaNoE-YPfbUHN6ymGZqUDtXEVevsweNU__tnID5EwXWigxkVnk_Nmz675FtUjYiH5rNMnoipZXEqeDBPpE_P_h5vdnNqYJADzSWaY3p9dG-HU6ogBzipEFy7KbBBDUL6Z5Vyp54_EkoBH7cqEIvtbUrs0sSAra-TES_YRiZ_j");'></div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-8">
+<div class="mx-auto max-w-7xl">
+<div class="flex flex-wrap items-start justify-between gap-4">
+<div class="flex min-w-72 flex-col gap-2">
+<p class="text-3xl font-black leading-tight tracking-[-0.033em] text-gray-900 dark:text-white">Dashboard Principal</p>
+<p class="text-base font-normal leading-normal text-gray-500 dark:text-gray-400">Resumen de la actividad de la clínica para este mes.</p>
+</div>
+<div class="flex gap-2 p-1">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white px-4 text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700">
+<p class="text-sm font-medium leading-normal">Hoy</p>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white px-4 text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700">
+<p class="text-sm font-medium leading-normal">Esta Semana</p>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary px-4 text-white shadow-sm">
+<p class="text-sm font-medium leading-normal">Este Mes</p>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white px-4 text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700">
+<p class="text-sm font-medium leading-normal">Este Año</p>
+</button>
+</div>
+</div>
+<div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-gray-400">Ventas Totales</p>
+<p class="text-3xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">$12,450.00</p>
+<p class="text-sm font-medium leading-normal text-green-600 dark:text-green-500">+8.2%</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-gray-400">Pacientes Nuevos</p>
+<p class="text-3xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">32</p>
+<p class="text-sm font-medium leading-normal text-green-600 dark:text-green-500">+5.4%</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-gray-400">Tratamientos Vendidos</p>
+<p class="text-3xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">56</p>
+<p class="text-sm font-medium leading-normal text-green-600 dark:text-green-500">+1.8%</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-gray-400">Gastos Totales</p>
+<p class="text-3xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">$3,120.00</p>
+<p class="text-sm font-medium leading-normal text-red-600 dark:text-red-500">-2.1%</p>
+</div>
+</div>
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+<div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900 lg:col-span-2">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Ingresos vs. Egresos</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">Rendimiento financiero del mes actual.</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="h-2 w-2 rounded-full bg-primary"></div>
+<span class="text-sm text-gray-600 dark:text-gray-400">Ingresos</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+<span class="text-sm text-gray-600 dark:text-gray-400">Egresos</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex h-80 w-full items-end gap-4 rounded-lg bg-gray-50/50 p-4 dark:bg-gray-800/50" data-alt="Placeholder for income vs. expenses bar chart">
+<div class="flex h-full w-full flex-col-reverse items-center gap-2">
+<div class="w-full text-center text-xs text-gray-500 dark:text-gray-400">Sem 1</div>
+<div class="flex w-full flex-1 items-end gap-1">
+<div class="w-1/2 rounded-t-md bg-primary" style="height: 65%"></div>
+<div class="w-1/2 rounded-t-md bg-gray-300 dark:bg-gray-600" style="height: 30%"></div>
+</div>
+</div>
+<div class="flex h-full w-full flex-col-reverse items-center gap-2">
+<div class="w-full text-center text-xs text-gray-500 dark:text-gray-400">Sem 2</div>
+<div class="flex w-full flex-1 items-end gap-1">
+<div class="w-1/2 rounded-t-md bg-primary" style="height: 75%"></div>
+<div class="w-1/2 rounded-t-md bg-gray-300 dark:bg-gray-600" style="height: 40%"></div>
+</div>
+</div>
+<div class="flex h-full w-full flex-col-reverse items-center gap-2">
+<div class="w-full text-center text-xs text-gray-500 dark:text-gray-400">Sem 3</div>
+<div class="flex w-full flex-1 items-end gap-1">
+<div class="w-1/2 rounded-t-md bg-primary" style="height: 90%"></div>
+<div class="w-1/2 rounded-t-md bg-gray-300 dark:bg-gray-600" style="height: 25%"></div>
+</div>
+</div>
+<div class="flex h-full w-full flex-col-reverse items-center gap-2">
+<div class="w-full text-center text-xs text-gray-500 dark:text-gray-400">Sem 4</div>
+<div class="flex w-full flex-1 items-end gap-1">
+<div class="w-1/2 rounded-t-md bg-primary" style="height: 80%"></div>
+<div class="w-1/2 rounded-t-md bg-gray-300 dark:bg-gray-600" style="height: 35%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Citas de Hoy</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">Próximos pacientes para el día.</p>
+<ul class="mt-4 space-y-4">
+<li class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Patient profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAKQ6Ee45IRLU3KVP9d9PAkLBJpWomajVTF5_K6_R-Xms7poJknDT7bfUY6_hFJfa8oA_I4sju6HgXUZ4k1khOvsmiQwxGRjkvv1X0Yp50BsY9Esm02pEmf7vTgVxxadg85Vh_itLjtxF5GEPsHR2AhTZnQ8eT5fV3ZZXCX8RfSq4ZOFyjbZmExyijcRvRtIaVgKcUS5RoWf2pl0V1NWtTrgdsYHkWAU4lg-lVRtZCGfBBbyJMejC8v_uhDDmDTdrC4z2_nwNn4OlFy");'></div>
+<div class="flex-1">
+<p class="font-medium text-gray-800 dark:text-gray-200">Carlos Mendoza</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">10:30 AM - Consulta General</p>
+</div>
+<span class="material-symbols-outlined text-gray-400">more_vert</span>
+</li>
+<li class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Patient profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAnwoBytQ8L__yDWODA5JrGsJLyAKZASOICoyynYpd60dYCz17wfgVp_8elclDltGub8pxVFtOk9YV-GiEd3SAp4tT1XjyKTfU6sUlULfxzcGd7fCw4zGtKnIV2-rG7KYsZV9zFHL0Y5t885ciJs9eLtHwgRsPfjinVGAu1E28rBM_xp_Hjr1U-CzWS8lO8AumWYvxracc1BE6Fbyanll6u87MHVuZgAy5HYR2c_7x6pIP7WYCIPiKk6U8Wbh5NgsBJlL6AoN9xM-Tm");'></div>
+<div class="flex-1">
+<p class="font-medium text-gray-800 dark:text-gray-200">Ana Jiménez</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">11:00 AM - Control</p>
+</div>
+<span class="material-symbols-outlined text-gray-400">more_vert</span>
+</li>
+<li class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Patient profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDfkyH3M1CuSH1Yj6pqDmU-Sj9lCSwqy62dRc3w0NmEoyvL4kgAbFoMWOEzcGUIvioFFsebKNodZxOZnvDBAXOL_fD7HZvCm26WIJRQmzFLuEwNwC9V00kb_HreT-EKf2_0etIw7uj5hkrzwDmfhup-1jl1ZLSTyswIGugqtOH8qhZ7sJlT_8mNNB4XDQ1fJiTdbX0HFHXLeCLu1KHJIuX0N1XJCy56PmRYB18b74RXkywRtRke1v68IArDM1IdNQXDjzC7LXe2kGhR");'></div>
+<div class="flex-1">
+<p class="font-medium text-gray-800 dark:text-gray-200">Sofia Rodriguez</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">12:15 PM - Limpieza Dental</p>
+</div>
+<span class="material-symbols-outlined text-gray-400">more_vert</span>
+</li>
+<li class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Patient profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBGi3e_Wzo9LwdCvYKZatIe9oWXbSLEZrkkyQ2uJjcw2zpBxJ8JC0T0X59t5jCPK5yuEtKb8DZm5R0uZPPd4sk8wg-LpWJx3JHVgOsgtZ4EWlEoPxv1dfqt2ug5Gd_q2QhO0GmDD_l6NZdSjjxQ7VvEukzFbsO4N9qCW-hR_WoNmV57who9kNaDPcOgZ13-1RoLb5Re5Xue1ShsIp9zJ4m6Syuo5slDSSujPjrgTx85Kts48nkrLtGnNEwEYo8PWQ5JeAGaYlIVwVCU");'></div>
+<div class="flex-1">
+<p class="font-medium text-gray-800 dark:text-gray-200">Javier Torres</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">01:00 PM - Consulta General</p>
+</div>
+<span class="material-symbols-outlined text-gray-400">more_vert</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>
