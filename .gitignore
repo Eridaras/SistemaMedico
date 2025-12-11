@@ -66,3 +66,11 @@ instance/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# Electronic Invoicing - Sensitive Files
+backend/certificates/*.p12
+backend/certificates/*.pfx
+backend/certificates/*.pem
+backend/storage/xml/
+backend/storage/ride/
+backend/storage/backup/

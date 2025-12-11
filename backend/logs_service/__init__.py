@@ -1,0 +1,3 @@
+"""
+Logs Service Package
+"""
