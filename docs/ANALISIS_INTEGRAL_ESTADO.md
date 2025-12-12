@@ -65,8 +65,8 @@ El backend es robusto y cubre el **90%** de la lógica de negocio requerida, per
 
 ## 5. 🗺️ Hoja de Ruta (Roadmap) Sugerida
 
-### Fase 1: Limpieza y Conexión (Día 1)
-1.  **Backend Fix**: Corregir la estructura de carpetas duplicada.
+### Fase 1: Limpieza y Conexión (✅ COMPLETADO)
+1.  **Backend Fix**: ✅ Corregir la estructura de carpetas duplicada.
 2.  **Cliente HTTP**: Configurar `axios` o `fetch` en Next.js con interceptores para JWT.
 3.  **Auth**: Lograr que el Login del frontend obtenga token del `auth_service`.
 
