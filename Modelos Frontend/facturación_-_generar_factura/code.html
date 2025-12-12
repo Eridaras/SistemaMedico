@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Facturación - Generar Factura</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#197fe6",
+            "background-light": "#f6f7f8",
+            "background-dark": "#111921",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-gray-200 dark:border-b-gray-700 bg-white dark:bg-background-dark px-6 py-3 sticky top-0 z-10">
+<div class="flex items-center gap-4 text-gray-800 dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold tracking-[-0.015em] text-gray-900 dark:text-white">ConsultorioApp</h2>
+</div>
+<div class="flex flex-1 justify-center gap-8">
+<div class="flex items-center gap-9">
+<a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">Historia Clínica</a>
+<a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">Agendamiento</a>
+<a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">Inventario</a>
+<a class="text-sm font-medium leading-normal text-primary dark:text-primary" href="#">Facturación</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary/20 text-primary text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Guardar Borrador</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Generar Factura</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8pwqDt5FaMXaXHj2Hif_gFuAaaBKfN519KdEkmK1I0CPCY8weH7XjKB-UZ4LrYTRseEXkhjizUoMmoPhMr6KUHXsEjHiH1au657t7Xo-0a69i-0z39ljhN_VGBB5tJPjQpQVASLuUDGGRa_MzAh5g6q9Y1PCbjp8OWO5rBeFQfJL8OGMSbz6H68o1AD4HNqNcQKMgETCziM1oB4Tu0r4P0uT0-jCXg1kSYE49m2s1M0vHt_gEIkFF080k7qgs7h4KCDqQuv6RDlVD");'></div>
+</div>
+</header>
+<main class="flex-1 px-4 py-8 md:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto flex flex-col gap-8">
+<div class="flex flex-wrap justify-between gap-4 items-center">
+<div class="flex min-w-72 flex-col gap-1">
+<p class="text-3xl font-black tracking-[-0.033em] text-gray-900 dark:text-white">Generar Nueva Factura</p>
+<p class="text-base font-normal text-gray-500 dark:text-gray-400">Crea y envía facturas a tus pacientes de forma rápida y sencilla.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 flex flex-col gap-6">
+<!-- Patient Data -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="p-6">
+<h2 class="text-lg font-bold tracking-[-0.015em] text-gray-900 dark:text-white mb-4">Datos del Paciente</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<label class="flex flex-col flex-1">
+<p class="text-sm font-medium leading-normal pb-2 text-gray-700 dark:text-gray-300">Buscar Paciente</p>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">search</span>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary dark:focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 pl-10 pr-4 text-sm" placeholder="Escribe el nombre o DNI del paciente" value="Ana María Torres"/>
+</div>
+</label>
+<label class="flex flex-col flex-1">
+<p class="text-sm font-medium leading-normal pb-2 text-gray-700 dark:text-gray-300">Fecha de Factura</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary dark:focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 text-sm" type="date" value="2023-10-27"/>
+</label>
+</div>
+<div class="mt-4">
+<label class="flex flex-col flex-1">
+<p class="text-sm font-medium leading-normal pb-2 text-gray-700 dark:text-gray-300">Descripción (Opcional)</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary dark:focus:border-primary h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 text-sm" placeholder="Ej: Consulta de seguimiento, procedimiento dental, etc."/>
+</label>
+</div>
+</div>
+</div>
+<!-- Invoice Details -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="p-6">
+<h2 class="text-lg font-bold tracking-[-0.015em] text-gray-900 dark:text-white mb-4">Detalles de la Factura</h2>
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+<thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700">
+<tr>
+<th class="px-6 py-3 rounded-l-lg" scope="col">Producto / Servicio</th>
+<th class="px-6 py-3 w-28" scope="col">Cantidad</th>
+<th class="px-6 py-3 w-32" scope="col">Precio Unit.</th>
+<th class="px-6 py-3 w-40" scope="col">Descuento</th>
+<th class="px-6 py-3 w-32 text-right" scope="col">Subtotal</th>
+<th class="px-1 py-3 rounded-r-lg w-12" scope="col"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+<td class="px-6 py-4 font-medium text-gray-900 dark:text-white">Consulta General Especializada</td>
+<td class="px-6 py-4">1</td>
+<td class="px-6 py-4">$150.000</td>
+<td class="px-6 py-4">
+<input class="form-input w-full rounded-md text-sm border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200" type="text" value="10%"/>
+</td>
+<td class="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">$135.000</td>
+<td class="px-1 py-4 text-right">
+<button class="p-2 text-gray-500 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 dark:text-gray-400">
+<span class="material-symbols-outlined text-base">delete</span>
+</button>
+</td>
+</tr>
+<tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+<td class="px-6 py-4 font-medium text-gray-900 dark:text-white">Kit de Bioseguridad</td>
+<td class="px-6 py-4">1</td>
+<td class="px-6 py-4">$25.000</td>
+<td class="px-6 py-4">
+<input class="form-input w-full rounded-md text-sm border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200" type="text" value="0%"/>
+</td>
+<td class="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">$25.000</td>
+<td class="px-1 py-4 text-right">
+<button class="p-2 text-gray-500 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 dark:text-gray-400">
+<span class="material-symbols-outlined text-base">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<button class="mt-4 flex items-center gap-2 text-primary font-bold text-sm py-2 px-3 rounded-lg hover:bg-primary/10">
+<span class="material-symbols-outlined text-xl">add_circle</span>
+                    Agregar producto o servicio
+                  </button>
+</div>
+</div>
+</div>
+<!-- Summary -->
+<div class="lg:col-span-1">
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm sticky top-24">
+<div class="p-6">
+<h2 class="text-lg font-bold tracking-[-0.015em] text-gray-900 dark:text-white mb-6">Resumen de Pago</h2>
+<div class="space-y-4 text-sm">
+<div class="flex justify-between items-center text-gray-600 dark:text-gray-300">
+<span>Subtotal</span>
+<span class="font-medium text-gray-800 dark:text-gray-100">$175.000</span>
+</div>
+<div class="flex justify-between items-center text-gray-600 dark:text-gray-300">
+<span>Descuentos</span>
+<span class="font-medium text-red-500">-$15.000</span>
+</div>
+<div class="flex justify-between items-center text-gray-600 dark:text-gray-300">
+<span>Impuestos (IVA 19%)</span>
+<span class="font-medium text-gray-800 dark:text-gray-100">$30.400</span>
+</div>
+<div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+<div class="flex justify-between items-center text-xl font-bold text-gray-900 dark:text-white">
+<span>Total a Pagar</span>
+<span>$190.400</span>
+</div>
+</div>
+<div class="mt-8 flex flex-col gap-3">
+<button class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-primary text-white text-base font-bold tracking-[0.015em]">
+<span class="truncate">Generar y Enviar Factura</span>
+</button>
+<button class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-primary/20 text-primary text-base font-bold tracking-[0.015em] dark:bg-white/10 dark:text-white">
+<span class="truncate">Guardar Borrador</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

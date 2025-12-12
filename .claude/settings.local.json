@@ -1,13 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir /B /S package.json)",
-      "Bash(python setup_database.py:*)",
-      "Bash(pip install:*)",
-      "Bash(python:*)",
-      "Bash(curl:*)",
-      "Bash(tree:*)",
-      "Bash(git add:*)"
-    ]
+      "Bash(chmod:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Implementación completa del backend con microservicios\n\nSistema de gestión clínica con arquitectura de microservicios desarrollado en Flask y PostgreSQL.\n\nMicroservicios implementados:\n- 🔐 Autenticación (5001): Login/Registro, JWT, RBAC\n- 📦 Inventario (5002): Productos, Tratamientos, Motor de Recetas\n- 👨‍⚕️ Historia Clínica (5003): Pacientes, Antecedentes, Notas\n- 💰 Facturación (5004): Facturas, Gastos, Dashboard Financiero\n- 📅 Citas (5005): Agendamiento, Disponibilidad, Tratamientos\n\nCaracterísticas principales:\n- Motor de Recetas: vincula automáticamente tratamientos con productos\n- Normativa Ecuador: validación de cédula y RUC\n- Facturación con IVA automático\n- Control financiero completo\n- Alertas de stock bajo\n- Verificación de disponibilidad de agenda\n\nEstructura del proyecto:\n- 5 microservicios independientes\n- Utilidades comunes compartidas\n- Scripts de instalación y ejecución\n- Documentación completa\n- Modelos de frontend de referencia\n\n🤖 Generated with Claude Code (https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Agregar Swagger, Tests e Integración entre Servicios\n\nMejoras implementadas:\n\n📚 Swagger/OpenAPI:\n- Agregado flask-restx a todos los requirements.txt\n- Documentación completa en SWAGGER_TESTS_INTEGRATION.md\n- Configuración de Swagger con autorización Bearer JWT\n- Ejemplos de implementación para cada servicio\n- Acceso a docs interactivos en /docs\n\n🧪 Pruebas Unitarias:\n- Agregado pytest y pytest-flask a dependencies\n- Estructura de tests documentada\n- Ejemplos de tests para Auth Service\n- Scripts de ejecución: run_tests.sh y run_tests.bat\n- Configuración de conftest.py\n\n🔗 Integración entre Servicios:\n- Nuevo módulo common/service_client.py\n- Clientes HTTP para todos los servicios\n- Ejemplos de flujos integrados\n- URLs de servicios configurables en .env\n- Documentación de casos de uso\n\n📝 Documentación:\n- Guía completa con ejemplos de código\n- Checklist de implementación\n- Scripts de testing automatizados\n- Configuración de URLs de servicios\n\nTodos los servicios ahora tienen:\n✅ Soporte para Swagger UI\n✅ Infraestructura de tests\n✅ Capacidad de comunicación entre servicios\n✅ Documentación completa\n\n🤖 Generated with Claude Code (https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
   }
 }
