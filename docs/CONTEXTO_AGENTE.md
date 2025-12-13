@@ -9,6 +9,13 @@
 
 ---
 
+## 📚 Documentación de Referencia
+*   **[Esquema de Base de Datos](./ESQUEMA_BASE_DATOS.md)**: Diagrama ER detallado y diccionario de datos.
+*   **[Plan de Implementación](./PLAN_IMPLEMENTACION.md)**: Hoja de ruta y tareas pendientes.
+*   **[Changelog](../CHANGELOG.md)**: Historial de cambios.
+
+---
+
 ## 2. Stack Tecnológico
 
 ### 🎨 Frontend (Carpeta `/Frontend`)
@@ -73,7 +80,11 @@ El esquema es relacional. Tablas principales creadas:
     *   Inventario (Buscador, Filtros).
 
 ### 🚧 En Progreso / Pendiente
-1.  **Conexión Real de Datos:** Las tablas de UI (Pacientes, Citas) muestran datos simulados (`const data = [...]`) en el Frontend. Falta conectar `fetch` a los endpoints del Backend ya existentes.
+1.  **Conexión Real de Datos:**
+    *   **Pacientes:** ✅ Conectado a API real (`/api/historia-clinica/patients`). Muestra datos de PostgreSQL.
+    *   **Inventario:** ✅ Conectado a API real (`/api/inventario/products`). Muestra stock real.
+    *   **Citas:** 🚧 Muestra datos simulados. Pendiente conectar.
+    *   **Facturación:** 🚧 Muestra datos simulados. Pendiente conectar.
 2.  **Facturación SRI:** El backend tiene la lógica de generación XML, pero falta probar el flujo completo de firma y envío SOAP con credenciales de prueba.
 3.  **Ambiente de Pruebas:** Necesitamos poblar la BD con datos masivos de prueba (ver `docs/PLAN_IMPLEMENTACION.md`).
 

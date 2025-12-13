@@ -22,6 +22,7 @@ export const auth = {
             if (response.ok && data.data?.token) {
                 if (typeof window !== 'undefined') {
                     localStorage.setItem('token', data.data.token);
+                    localStorage.setItem('user', JSON.stringify(data.data.user)); // Store user
                     // Set cookie for middleware (1 day expiry)
                     document.cookie = `token=${data.data.token}; path=/; max-age=86400; SameSite=Strict`;
                 }
@@ -41,6 +42,7 @@ export const auth = {
     logout() {
         if (typeof window !== 'undefined') {
             localStorage.removeItem('token');
+            localStorage.removeItem('user'); // Remove user
             document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
             window.location.href = '/login';
         }
@@ -49,6 +51,20 @@ export const auth = {
     getToken(): string | null {
         if (typeof window !== 'undefined') {
             return localStorage.getItem('token');
+        }
+        return null;
+    },
+
+    getUser(): any | null {
+        if (typeof window !== 'undefined') {
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try {
+                    return JSON.parse(userStr);
+                } catch (e) {
+                    return null;
+                }
+            }
         }
         return null;
     },

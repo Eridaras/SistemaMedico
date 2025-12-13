@@ -22,6 +22,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { auth } from '@/lib/auth';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -33,6 +34,11 @@ const navItems = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [user, setUser] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    setUser(auth.getUser());
+  }, []);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -55,8 +61,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <AvatarFallback>EV</AvatarFallback>
             </Avatar>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-medium truncate">Dr. Elena Vargas</span>
-              <span className="text-xs text-muted-foreground truncate">Médico General</span>
+              <span className="text-sm font-medium truncate">{user?.full_name || 'Cargando...'}</span>
+              <span className="text-xs text-muted-foreground truncate">{user?.role_name || '...'}</span>
             </div>
           </div>
 
