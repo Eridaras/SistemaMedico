@@ -1,89 +1,77 @@
-# Sistema Médico Integral 🏥
+# 🏥 Sistema Médico - Clínica Bienestar
 
-> **⚠️ PROYECTO PRIVADO**: Este repositorio contiene código propietario y confidencial. Su acceso y distribución están restringidos exclusivamente al equipo de desarrollo autorizado.
+> **Sistema Integral de Gestión Hospitalaria con Facturación Electrónica SRI**
 
-Este monorepo alberga la solución completa para la gestión clínica, integrando un backend robusto basado en microservicios y un frontend moderno de alto rendimiento.
+[![Status](https://img.shields.io/badge/Estado-Desarrollo_Activo-blue)](https://github.com/tu-usuario/sistema-medico)
+[![Version](https://img.shields.io/badge/Versión-1.1.0-green)](CHANGELOG.md)
 
-## 📂 Estructura del Proyecto
+---
 
-El repositorio está organizado en dos componentes principales:
+## 🤖 ¿Eres un Agente de IA o Nuevo Desarrollador?
 
-*   **`/Backend`**: Servicios RESTful desarrollados en Python/Flask. Maneja la lógica de negocio, base de datos y autenticación.
-*   **`/Frontend`**: Aplicación web moderna construida con Next.js. Provee la interfaz de usuario para médicos, recepcionistas y administradores.
+**STOP! LEE ESTO PRIMERO:**
+Hemos preparado un documento de contexto maestro que explica TODA la arquitectura, estado actual y reglas del proyecto. Es vital que lo leas antes de realizar cambios.
+
+👉 **[LEER CONTEXTO MAESTRO DEL PROYECTO (docs/CONTEXTO_AGENTE.md)](docs/CONTEXTO_AGENTE.md)** 👈
+
+---
 
 ## 🚀 Inicio Rápido
 
-### Requisitos Previos
+### Requisitos
+- Node.js 18+
+- Python 3.9+
+- PostgreSQL
+- Git
 
-*   **Node.js** (v18 o superior)
-*   **Python** (v3.12 o superior)
-*   **Docker** (Opcional, para contenedores)
-*   **Git**
+### Instalación
 
-### Configuración del Entorno
+1. **Clonar repositorio:**
+   ```bash
+   git clone https://github.com/tu-usuario/sistema-medico.git
+   cd sistema-medico
+   ```
 
-Para levantar el entorno de desarrollo completo, sigue estas instrucciones por componente:
+2. **Backend (Microservicios):**
+   ```bash
+   cd backend
+   # Crear entorno virtual (opcional pero recomendado)
+   python -m venv venv
+   .\venv\Scripts\activate
+   
+   # O usar script automático
+   .\install.bat
+   
+   # Iniciar servicios
+   .\run_all.bat
+   ```
 
-#### 1. Backend (API)
+3. **Frontend (Next.js):**
+   ```bash
+   cd Frontend
+   npm install
+   npm run dev
+   ```
 
-Consulte el [README del Backend](Backend/README.md) para instrucciones detalladas. Resumen rápido:
+4. **Acceso:**
+   - Web: `http://localhost:9002`
+   - Admin: `admin@clinica.com` / `admin123`
 
-```bash
-cd Backend
-# Crear entorno virtual
-python -m venv venv
-.\venv\Scripts\activate  # Windows
+## 📚 Documentación
 
-# Instalar dependencias
-pip install -r requirements.txt (o por servicio individual)
+- **[Contexto Técnico (Agentes)](docs/CONTEXTO_AGENTE.md)** - Arquitectura y reglas.
+- **[Plan de Implementación](docs/PLAN_IMPLEMENTACION.md)** - Roadmap SRI y Datos.
+- **[Estrategia de Pruebas](docs/ESTRATEGIA_PRUEBAS.md)** - QA.
+- **[Changelog](CHANGELOG.md)** - Historial de cambios.
 
-# Configurar variables de entorno
-cp .env.example .env
-# (Solicitar credenciales de Neon.tech al líder técnico)
+## 🏗️ Arquitectura
 
-# Ejecutar servicios
-./run_all.bat
-```
+El sistema utiliza una arquitectura de microservicios:
+- **Frontend:** Next.js 15 + Tailwind + Shadcn/UI
+- **Backend:** Python Flask (5 servicios independientes)
+- **Base de Datos:** PostgreSQL
+- **Facturación:** XML/SOAP Nativo SRI Ecuador
 
-#### 2. Frontend (Web)
+## 📄 Licencia
 
-```bash
-cd Frontend
-# Instalar dependencias
-npm install
-
-# Iniciar servidor de desarrollo
-npm run dev
-```
-
-La aplicación web estará disponible en `http://localhost:9002` (puerto configurado en `package.json`).
-
-## 🛠️ Stack Tecnológico
-
-### Frontend
-*   **Framework**: Next.js 15 (React 19)
-*   **Estilos**: Tailwind CSS + Shadcn/UI
-*   **Iconos**: Lucide React
-*   **IA/GenAI**: Google Genkit + Firebase
-*   **Validación**: Zod + React Hook Form
-
-### Backend
-*   **Lenguaje**: Python 3.12+
-*   **Framework**: Flask (Microservicios)
-*   **Base de Datos**: PostgreSQL (Neon.tech Serverless)
-*   **Autenticación**: JWT (JSON Web Tokens)
-*   **Documentación**: Swagger/OpenAPI
-
-## 📖 Documentación Adicional
-
-*   [Guía de Onboarding y Normas](docs/ONBOARDING.md): Lectura obligatoria para nuevos miembros.
-*   [Arquitectura de Base de Datos](Backend/docs/arquitecturaBD.md): Diagramas y esquemas.
-
-## 🔐 Seguridad y Normativas
-
-1.  **Nunca subir archivos `.env`**: Las credenciales locales son personales.
-2.  **Datos Sensibles**: No hardcodear contraseñas ni claves API en el código.
-3.  **Ramas**: Trabajar siempre en ramas separadas (`feature/nueva-funcionalidad`) y hacer Pull Request a `main`.
-
----
-© Eridaras Dev Team. Todos los derechos reservados.
+Este proyecto es software propietario de Clínica Bienestar.
