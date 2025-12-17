@@ -1,0 +1,118 @@
+# =====================================================
+# CONFIGURACIÓN DEL PROYECTO - Sistema Médico Integral
+# Versión: Sprint 2 (Diciembre 2025)
+# =====================================================
+
+[project]
+name = "sistema-medico-backend"
+version = "1.2.0"
+description = "Sistema de Gestión Clínica - Backend Microservicios"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Eridaras Dev Team", email = "dev@eridaras.com"}
+]
+
+[tool.ruff]
+# Configuración de Ruff (linter + formatter)
+line-length = 100
+target-version = "py312"
+
+# Habilitar reglas
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "W",   # pycodestyle warnings
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "S",   # flake8-bandit (seguridad)
+]
+
+# Ignorar reglas específicas
+ignore = [
+    "E501",  # líneas largas (manejado por line-length)
+    "S101",  # uso de assert (necesario en tests)
+    "S105",  # hardcoded password (falsos positivos en tests)
+]
+
+# Excluir directorios
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "*.egg-info",
+    "migrations",
+    "alembic/versions",
+]
+
+[tool.ruff.per-file-ignores]
+# Permitir assert en tests
+"**/tests/**/*.py" = ["S101"]
+"test_*.py" = ["S101"]
+
+[tool.ruff.isort]
+# Configuración de ordenamiento de imports
+known-first-party = ["common", "auth_service", "citas_service", "facturacion_service", "historia_clinica_service", "inventario_service", "logs_service"]
+
+[tool.mypy]
+# Configuración de MyPy (type checking)
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+disallow_untyped_defs = false  # Permitir funciones sin tipos por ahora
+ignore_missing_imports = true  # Ignorar imports sin stubs
+
+# Excluir directorios
+exclude = [
+    "tests/",
+    "migrations/",
+    "alembic/",
+]
+
+[tool.pytest.ini_options]
+# Configuración de pytest
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+# Configuración de coverage
+source = [
+    "auth_service",
+    "citas_service",
+    "facturacion_service",
+    "historia_clinica_service",
+    "inventario_service",
+    "logs_service",
+    "common",
+]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+# Cobertura mínima requerida
+fail_under = 60
+show_missing = true
+skip_covered = false
