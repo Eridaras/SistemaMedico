@@ -462,7 +462,7 @@ psycopg2 es estable pero la comunidad se mueve hacia psycopg 3.x con mejores cap
 
 ## 📅 Roadmap de Implementación
 
-### Sprint 1 (Semana 1-2): Seguridad Crítica
+### Sprint 1 (Semana 1-2): Seguridad Crítica (✅ COMPLETADO)
 - ✅ Auditar y corregir configuración JWT
 - ✅ Auditar y corregir configuración CORS
 - ✅ Fijar PostgreSQL 16.x
@@ -470,9 +470,9 @@ psycopg2 es estable pero la comunidad se mueve hacia psycopg 3.x con mejores cap
 - ✅ Auditar work factor de bcrypt
 
 **Entregables:**
-- Reporte de auditoría de seguridad
-- Configuraciones actualizadas en todos los servicios
-- Tests de seguridad pasando
+- ✅ Reporte de auditoría de seguridad
+- ✅ Configuraciones actualizadas en todos los servicios
+- ✅ Tests de seguridad pasando
 
 ---
 
