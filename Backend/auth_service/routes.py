@@ -11,13 +11,18 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from common.auth_middleware import token_required, role_required
 from common.utils import validate_email, success_response, error_response
+from common.config import Config
 from auth_service.models import UserModel, RoleModel
 
 auth_bp = Blueprint('auth', __name__)
 
-# JWT Configuration
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your-secret-key-change-this')
-JWT_EXPIRATION_HOURS = int(os.getenv('JWT_EXPIRATION_HOURS', 24))
+# Usar configuración centralizada
+JWT_SECRET_KEY = Config.JWT_SECRET_KEY
+JWT_EXPIRATION_HOURS = Config.JWT_EXPIRATION_HOURS
+JWT_ALGORITHM = Config.JWT_ALGORITHM
+JWT_ISSUER = Config.JWT_ISSUER
+JWT_AUDIENCE = Config.JWT_AUDIENCE
+BCRYPT_LOG_ROUNDS = Config.BCRYPT_LOG_ROUNDS
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -55,10 +60,13 @@ def login():
             'user_id': user['user_id'],
             'role_id': user['role_id'],
             'email': user['email'],
+            'iss': JWT_ISSUER,
+            'aud': JWT_AUDIENCE,
+            'iat': datetime.utcnow(),
             'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
         }
 
-        token = jwt.encode(token_payload, JWT_SECRET_KEY, algorithm='HS256')
+        token = jwt.encode(token_payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
         # Prepare response
         response_data = {
@@ -106,8 +114,11 @@ def register():
         if existing_user:
             return error_response('User with this email already exists', 409)
 
-        # Hash password
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # Hash password with configurable work factor
+        password_hash = bcrypt.hashpw(
+            password.encode('utf-8'), 
+            bcrypt.gensalt(rounds=BCRYPT_LOG_ROUNDS)
+        ).decode('utf-8')
 
         # Create user
         user = UserModel.create(role_id, full_name, email, password_hash)
@@ -120,10 +131,13 @@ def register():
             'user_id': user['user_id'],
             'role_id': user['role_id'],
             'email': user['email'],
+            'iss': JWT_ISSUER,
+            'aud': JWT_AUDIENCE,
+            'iat': datetime.utcnow(),
             'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
         }
 
-        token = jwt.encode(token_payload, JWT_SECRET_KEY, algorithm='HS256')
+        token = jwt.encode(token_payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
         # Prepare response
         response_data = {

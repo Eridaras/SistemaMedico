@@ -5,6 +5,16 @@ from functools import wraps
 from flask import request, jsonify
 import jwt
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from common.config import Config
+
+# JWT Configuration from centralized config
+JWT_SECRET_KEY = Config.JWT_SECRET_KEY
+JWT_ALGORITHM = Config.JWT_ALGORITHM
+JWT_ISSUER = Config.JWT_ISSUER
+JWT_AUDIENCE = Config.JWT_AUDIENCE
 
 def token_required(f):
     """Decorator to protect routes that require authentication"""
@@ -24,11 +34,20 @@ def token_required(f):
             return jsonify({'message': 'Token is missing'}), 401
 
         try:
-            # Decode token
+            # Decode token with full validation
             data = jwt.decode(
                 token,
-                os.getenv('JWT_SECRET_KEY', 'your-secret-key-change-this'),
-                algorithms=["HS256"]
+                JWT_SECRET_KEY,
+                algorithms=[JWT_ALGORITHM],
+                issuer=JWT_ISSUER,
+                audience=JWT_AUDIENCE,
+                options={
+                    'require': ['exp', 'iat', 'iss', 'aud'],
+                    'verify_exp': True,
+                    'verify_iat': True,
+                    'verify_iss': True,
+                    'verify_aud': True
+                }
             )
             current_user = {
                 'user_id': data['user_id'],
@@ -37,6 +56,12 @@ def token_required(f):
             }
         except jwt.ExpiredSignatureError:
             return jsonify({'message': 'Token has expired'}), 401
+        except jwt.InvalidIssuerError:
+            return jsonify({'message': 'Token issuer invalid'}), 401
+        except jwt.InvalidAudienceError:
+            return jsonify({'message': 'Token audience invalid'}), 401
+        except jwt.ImmatureSignatureError:
+            return jsonify({'message': 'Token not yet valid'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'message': 'Token is invalid'}), 401
 
@@ -54,3 +79,4 @@ def role_required(allowed_roles):
             return f(current_user, *args, **kwargs)
         return decorated
     return decorator
+

@@ -23,7 +23,16 @@ class Config:
     # Security
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'change-this-in-production')
     JWT_EXPIRATION_HOURS = int(os.getenv('JWT_EXPIRATION_HOURS', 24))
-    JWT_ALGORITHM = 'HS256'
+    JWT_ALGORITHM = os.getenv('JWT_ALGORITHM', 'HS256')
+    JWT_ISSUER = os.getenv('JWT_ISSUER', 'sistema-medico-api')
+    JWT_AUDIENCE = os.getenv('JWT_AUDIENCE', 'sistema-medico-frontend')
+    
+    # Bcrypt Configuration
+    # Work factor recomendado: 12-14
+    # 10 = ~0.1s por hash (INSEGURO para 2025)
+    # 12 = ~0.4s por hash (RECOMENDADO para balance seguridad/UX)
+    # 14 = ~1.6s por hash (MUY SEGURO pero puede afectar UX)
+    BCRYPT_LOG_ROUNDS = int(os.getenv('BCRYPT_LOG_ROUNDS', 12))
 
     # Rate Limiting
     RATE_LIMIT_ENABLED = os.getenv('RATE_LIMIT_ENABLED', 'True') == 'True'

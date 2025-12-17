@@ -281,9 +281,22 @@ auth_logger.info(
 
 ## 🗄️ Base de Datos
 
+### Versión de PostgreSQL
+Este proyecto requiere **PostgreSQL 16.x** (fijada para reproducibilidad).
+
+### Configuración en Neon.tech
+1. Acceder al dashboard de Neon.tech
+2. Verificar que la versión sea PostgreSQL 16.x
+3. Si usas una instancia anterior, crear nueva con versión 16
+
+### Configuración local con Docker
+```bash
+docker-compose up -d
+```
+
 ### Arquitectura
 
-- **Motor**: PostgreSQL 15
+- **Motor**: PostgreSQL 16
 - **Hosting**: Neon.tech (serverless)
 - **Tablas**: 14 tablas normalizadas
 - **Índices**: Optimizados para consultas frecuentes
