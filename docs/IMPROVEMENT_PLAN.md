@@ -520,16 +520,17 @@ psycopg2 es estable pero la comunidad se mueve hacia psycopg 3.x con mejores cap
 
 ---
 
-### Sprint 5-6 (Q1 Final): Optimizaciones Avanzadas
-- ✅ Evaluar necesidad de ASGI
-- ✅ Completar tests de integración
-- ✅ Monitoreo de métricas de rendimiento
-- ✅ Optimizaciones específicas según bottlenecks identificados
+### Sprint 5-6 (Q1 Final): Optimizaciones Avanzadas (🔄 EN PROGRESO)
+- ✅ Evaluar necesidad de ASGI (Configurado Gunicorn/Uvicorn)
+- 🔄 Completar tests de integración (Infraestructura lista)
+- ✅ Monitoreo de métricas de rendimiento (Prometheus Exporter implementado)
+- ✅ Optimizaciones específicas (Índices y Caching listos)
+- ✅ Tests de Carga (Locust script creado)
 
 **Entregables:**
-- Sistema optimizado para producción
-- Métricas de rendimiento documentadas
-- Plan de escalamiento definido
+- ✅ Sistema optimizado para producción
+- ✅ Métricas de rendimiento documentadas (Endpoint /metrics)
+- 🔄 Plan de escalamiento definido
 
 ---
 
