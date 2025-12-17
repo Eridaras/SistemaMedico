@@ -1,6 +1,6 @@
 # =====================================================
 # DEPENDENCIAS BASE - Sistema Médico Integral
-# Versión: Sprint 3 (Diciembre 2025)
+# Versión: Sprint 4 (Diciembre 2025)
 # =====================================================
 
 # Framework Web
@@ -26,7 +26,11 @@ redis==5.2.1
 # Rate Limiting (Sprint 3)
 flask-limiter==3.9.0
 
+# Compression (Sprint 4)
+flask-compress==1.15
+
 # Utilidades
 python-dotenv==1.0.0
 requests==2.31.0
+
 
