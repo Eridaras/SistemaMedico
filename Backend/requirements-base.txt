@@ -1,6 +1,6 @@
 # =====================================================
 # DEPENDENCIAS BASE - Sistema Médico Integral
-# Versión: Sprint 2 (Diciembre 2025)
+# Versión: Sprint 3 (Diciembre 2025)
 # =====================================================
 
 # Framework Web
@@ -19,6 +19,14 @@ psycopg2-binary==2.9.9
 # Migraciones
 alembic==1.13.3
 
+# Caching (Sprint 3)
+flask-caching==2.3.0
+redis==5.2.1
+
+# Rate Limiting (Sprint 3)
+flask-limiter==3.9.0
+
 # Utilidades
 python-dotenv==1.0.0
 requests==2.31.0
+
