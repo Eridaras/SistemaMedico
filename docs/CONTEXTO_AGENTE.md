@@ -5,110 +5,104 @@
 ## 1. Identidad del Proyecto
 **Nombre:** Sistema Médico - Clínica Bienestar
 **Objetivo:** Sistema integral de gestión hospitalaria (HIS) con facturación electrónica nativa para Ecuador (SRI).
-**Estado Actual:** MVP Funcional (Frontend Premium + Backend Microservicios).
+**Estado Actual:** MVP Híbrido (Infraestructura de Producción + Frontend Parcialmente Conectado).
 
 ---
 
-## 📚 Documentación de Referencia
-*   **[Esquema de Base de Datos](./ESQUEMA_BASE_DATOS.md)**: Diagrama ER detallado y diccionario de datos.
-*   **[Plan de Implementación](./PLAN_IMPLEMENTACION.md)**: Hoja de ruta y tareas pendientes.
-*   **[Changelog](../CHANGELOG.md)**: Historial de cambios.
+## 2. Mapa de Integración (Estado Real)
+
+La aplicación tiene una discrepancia entre la robustez del Backend (completamente funcional) y la integración del Frontend (módulos desconectados).
+
+| Módulo | Backend (API) | Frontend (UI) | Estado de Conexión | Notas |
+|--------|---------------|---------------|--------------------|-------|
+| **Auth** | ✅ Listo | ✅ Listo | 🟢 **Conectado** | Login JWT, Roles y Protección de rutas 100% funcionales. |
+| **Pacientes** | ✅ Listo | ✅ Listo | 🟢 **Conectado** | Tabla, creación y búsqueda consumen API real `/api/historia-clinica`. |
+| **Inventario** | ✅ Listo | ✅ Listo | 🟢 **Conectado** | API `/api/inventario` 100% integrada. Muestra stock real. |
+| **Citas** | ✅ Listo | ✅ Listo | 🔴 **Desconectado** | UI es "Fake/Mock". Usa datos estáticos en `src/app/(app)/appointments/page.tsx`. Endpoint `/api/citas` funcional pero no se consume. |
+| **Facturación** | ✅ Listo | ✅ Listo | 🔴 **Desconectado** | UI simulada. Lógica SRI en backend existe pero no se invoca desde UI. |
+| **Dashboard** | N/A | ✅ Listo | 🟡 **Parcial** | Gráficos visuales pero datos estáticos. |
+
+> **Tarea Crítica Inmediata:** Conectar los módulos de Citas y Facturación a los endpoints existentes del Backend.
 
 ---
 
-## 2. Stack Tecnológico
+## 3. Infraestructura Técnica (Backend)
 
-### 🎨 Frontend (Carpeta `/Frontend`)
-- **Framework:** Next.js 15 (App Router)
-- **Lenguaje:** TypeScript
-- **Estilos:** Tailwind CSS + Shadcn/UI
-- **Iconos:** Lucide React
-- **Estado/Auth:** Cookies + JWT (Custom implementation in `src/lib/auth.ts`)
-- **Animaciones:** Framer Motion (`page-transition.tsx`)
-- **Visualización:** Recharts
+La infraestructura backend está en un estado muy avanzado (Sprint 6 completado).
 
-### ⚙️ Backend (Carpeta `/backend`)
-- **Lenguaje:** Python 3.9+
-- **Framework:** Flask (Microservicios)
-- **Base de Datos:** PostgreSQL
-- **Facturación:** XML v2.1.0 (XADES-BES) compatible con SRI
-- **Comunicación SRI:** SOAP (Zeep)
+### ✅ Implementado y Operativo:
+1.  **Microservicios WSGI/ASGI**: Flask + Gunicorn (configurado para producción) + Uvicorn workers.
+2.  **Base de Datos**: PostgreSQL 16.x con índices optimizados y extensión `pg_trgm`.
+3.  **Seguridad**: 
+    *   JWT con validación estricta (iss, aud, exp).
+    *   Cabeceras de seguridad (Flask-Talisman).
+    *   Rate Limiting (Flask-Limiter) con almacenamiento en memoria/redis.
+4.  **Rendimiento**:
+    *   Caching capa 2 (Flask-Caching con Redis).
+    *   Compresión Gzip/Brotli (Flask-Compress).
+5.  **Observabilidad**:
+    *   Métricas Prometheus (`/metrics`) en todos los servicios.
+    *   Logging estructurado JSON.
+6.  **Calidad de Código (CI/CD)**:
+    *   Pipeline GitHub Actions configurado.
+    *   Linting estricto (Ruff, MyPy).
+    *   Escaneo de seguridad (Bandit, OWASP ZAP baseline).
 
----
-
-## 3. Arquitectura de Microservicios
-
-El sistema opera con una arquitectura de microservicios. Cada servicio corre en su propio proceso/puerto.
-
-| Servicio | Puerto | Directorio | Descripción |
-|----------|--------|------------|-------------|
-| **Auth** | `5001` | `/backend/auth_service` | Login, JWT, Roles, Usuarios (PostgreSQL: `users`, `roles`) |
-| **Inventario** | `5002` | `/backend/inventario_service` | Productos, Stock, Categorías (PostgreSQL: `products`) |
-| **Historia** | `5003` | `/backend/historia_clinica_service` | Pacientes, Consultas, Historial (PostgreSQL: `patients`) |
-| **Facturación** | `5004` | `/backend/facturacion_service` | Facturas, SRI, XML, Firmas (PostgreSQL: `invoices`) |
-| **Citas** | `5005` | `/backend/citas_service` | Agendamiento, Calendario (PostgreSQL: `appointments`) |
-| **Frontend** | `9002` | `/Frontend` | Interfaz de Usuario (Next.js Proxy -> Backend) |
-
-> **Nota sobre Proxy:** El Frontend usa `next.config.ts` (`async rewrites`) para redirigir peticiones desde `/api/*` hacia los puertos específicos del backend. **El frontend NO hace peticiones directas a localhost:5001, usa /api/auth/...**
+### ⚙️ Stack Backend:
+- **Lenguaje:** Python 3.12+
+- **Framework:** Flask 3.1.0
+- **Dependencias Clave:** `flask-restx`, `sqlalchemy`, `alembic`, `pydantic`.
 
 ---
 
-## 4. Estructura de Base de Datos (PostgreSQL)
+## 4. Estructura de Proyecto
 
-El esquema es relacional. Tablas principales creadas:
-- `users`: Usuarios del sistema (con `role_id`).
-- `roles`: RBAC (Admin, Médico, etc).
-- `patients`: Datos demográficos.
-- `appointments`: Citas médicas.
-- `products`: Inventario.
-- `invoices`: Cabecera de facturas.
-- `invoice_items`: Detalle de facturas.
-- `sri_configuration`: Credenciales de firma electrónica.
-
----
-
-## 5. Estado Actual del Desarrollo (Snapshot)
-
-### ✅ Funcionalidades Activas
-1.  **Login Premium:** Autenticación JWT completa contra `auth_service`. UI con diseño split-screen y animaciones.
-2.  **Dashboard:** KPIs visuales, Gráficos (mock data visual, estructura real lista), Lista de citas.
-3.  **Navegación:** Sidebar responsive, transiciones suaves entre páginas.
-4.  **Módulos UI:**
-    *   Pacientes (Tabla, Búsqueda).
-    *   Agendamiento (Calendario Interactivo).
-    *   Facturación (Lista, Generador de facturas con cálculos IVA).
-    *   Inventario (Buscador, Filtros).
-
-### 🚧 En Progreso / Pendiente
-1.  **Conexión Real de Datos:**
-    *   **Pacientes:** ✅ Conectado a API real (`/api/historia-clinica/patients`). Muestra datos de PostgreSQL.
-    *   **Inventario:** ✅ Conectado a API real (`/api/inventario/products`). Muestra stock real.
-    *   **Citas:** 🚧 Muestra datos simulados. Pendiente conectar.
-    *   **Facturación:** 🚧 Muestra datos simulados. Pendiente conectar.
-2.  **Facturación SRI:** El backend tiene la lógica de generación XML, pero falta probar el flujo completo de firma y envío SOAP con credenciales de prueba.
-3.  **Ambiente de Pruebas:** Necesitamos poblar la BD con datos masivos de prueba (ver `docs/PLAN_IMPLEMENTACION.md`).
+```
+Sistema Médico/
+├── backend/                  # Monorepo de microservicios
+│   ├── auth_service/         # Puerto 5001
+│   ├── inventario_service/   # Puerto 5002
+│   ├── historia_clinica_service/ # Puerto 5003
+│   ├── facturacion_service/  # Puerto 5004
+│   ├── citas_service/        # Puerto 5005
+│   ├── logs_service/         # Puerto 5006
+│   ├── common/               # Librerías compartidas (Metrics, Auth, Cache)
+│   ├── scripts/              # Setup, Seeds, Herramientas
+│   └── docs/                 # Documentación técnica
+├── Frontend/                 # Next.js 15 (App Router)
+│   ├── src/app/(app)/        # Rutas protegidas (Dashboard)
+│   ├── src/app/(auth)/       # Rutas públicas (Login)
+│   └── src/lib/              # Utilidades cliente
+└── .github/workflows/        # CI/CD Pipelines
+```
 
 ---
 
-## 6. Reglas para Agentes (Guidelines)
+## 5. Guía para Desarrolladores / Agentes
 
-1.  **Modificaciones de UI:** Siempre mantén la estética "Premium" (sombras suaves, bordes redondeados, paleta azul `#197fe6`). Usa `PageTransition` en cada nueva página.
-2.  **Nuevas Funcionalidades:**
-    *   Primero define el modelo de datos en Backend.
-    *   Crea el endpoint en el servicio correspondiente.
-    *   Actualiza el `rewrite` en `next.config.ts` si es un nuevo servicio.
-    *   Crea la UI en Frontend.
-3.  **Manejo de Errores:** Nunca dejes un `catch` vacío. Muestra errores visuales al usuario (Toasts o mensajes en formulario).
-4.  **Tests:** Si tocas lógica crítica (especialmente Facturación/SRI), ejecuta los tests en `backend/tests/`.
+### Si vas a trabajar en **Citas** o **Facturación**:
+1.  **NO crees nuevos componentes UI.** Ya existen y son visualmente correctos (`appointments/page.tsx`).
+2.  **TU OBJETIVO:** Reemplazar los arrays estáticos (`const appointments = [...]`) por llamadas a `fetch` o `useSWR` que apunten a los endpoints ya existentes (`/api/citas/appointments`).
+3.  **VERIFICACIÓN:** Asegúrate de que los modelos de datos del backend (`datetime` strings) coincidan con lo que espera el frontend.
+
+### Si vas a trabajar en **Backend**:
+1.  El código debe cumplir con `ruff` y `mypy` (ver `.pre-commit-config.yaml`).
+2.  Cualquier nuevo endpoint debe usar los decoradores standard:
+    *   `@token_required` (Auth)
+    *   `@cached_response` (Si aplica)
+    *   `@limiter.limit` (Si es público/costoso)
+3.  Actualiza los tests en `tests/` si cambias lógica de negocio.
 
 ---
 
-## 7. Comandos Operativos
+## 6. Comandos Operativos
 
-**Backend (Todos los servicios):**
+**Backend:**
 ```bash
 cd backend
-.\run_all.bat
+run_all.bat   # Windows
+# o
+./run_all.sh  # Linux/Mac
 ```
 
 **Frontend:**
@@ -117,21 +111,19 @@ cd Frontend
 npm run dev
 ```
 
-**Generar Datos de Prueba (Próximamente):**
+**Validación (Tests & Lint):**
 ```bash
-python backend/scripts/generate_mock_data.py
+# Backend
+cd backend
+pytest
+ruff check .
+
+# Frontend
+cd Frontend
+npm run lint
+npm run typecheck
 ```
 
 ---
 
-## 8. Rutas Clave del Proyecto
-
-- **Conf. Next.js:** `Frontend/next.config.ts` (Aquí están los proxys).
-- **Auth Utils:** `Frontend/src/lib/auth.ts` (Lógica de login cliente).
-- **Estilos Globales:** `Frontend/src/app/globals.css`.
-- **Backend Routes:** `backend/<servicio>/routes.py`.
-- **Modelos DB:** `backend/<servicio>/models.py`.
-
----
-
-**Última actualización:** 12 Dic 2025 - Implementación de Frontend Premium completada.
+**Última actualización:** 17 Dic 2025 - Reflejo exacto del estado post-sprint 6.

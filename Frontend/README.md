@@ -62,6 +62,22 @@ npm start
 - [Firebase](https://firebase.google.com/) - Autenticación y servicios
 - [Genkit](https://firebase.google.com/docs/genkit) - AI/ML integración
 
+## 🚧 Estado de Integración
+
+Actualmente el frontend se encuentra en un estado híbrido:
+
+- **🟢 Conectado (API Real):**
+  - Autenticación (Login/Register) -> `auth_service`
+  - Pacientes (Lista, Crear) -> `historia_clinica_service`
+  - Inventario (Lista, Stock) -> `inventario_service`
+
+- **🟡 Parcial / UI Mock (Datos Simulados):**
+  - Dashboard (Gráficos)
+  - Citas / Calendario (UI completa, falta fetch a `citas_service`)
+  - Facturación (UI completa, falta fetch a `facturacion_service`)
+
+Si vas a desarrollar en los módulos "Parciales", tu tarea es conectar los componentes existentes a los endpoints del backend documentados.
+
 ## Estructura del Proyecto
 
 ```
