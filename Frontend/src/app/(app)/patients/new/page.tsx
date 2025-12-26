@@ -30,14 +30,21 @@ import { format } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { useAuth } from "@/components/auth-provider"
 
 const patientFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
+  doc_type: z.enum(["CEDULA", "RUC", "PASSPORT"], {
+    required_error: "Document type is required"
+  }),
+  doc_number: z.string().min(10, "Document number must be at least 10 characters."),
+  firstName: z.string().min(2, "First name must be at least 2 characters."),
+  lastName: z.string().min(2, "Last name must be at least 2 characters."),
   dob: z.date({ required_error: "A date of birth is required." }),
-  gender: z.enum(["Male", "Female", "Other"]),
+  gender: z.enum(["M", "F", "Other"], { required_error: "Gender is required" }),
   contact: z.string().min(10, "Contact number must be at least 10 digits."),
-  email: z.string().email("Please enter a valid email address."),
-  address: z.string().min(5, "Address is too short."),
+  email: z.string().email("Please enter a valid email address.").optional().or(z.literal("")),
+  address: z.string().min(5, "Address is too short.").optional().or(z.literal("")),
   allergies: z.string().optional(),
   conditions: z.string().optional(),
 })
@@ -47,26 +54,96 @@ type PatientFormValues = z.infer<typeof patientFormSchema>
 export default function NewPatientPage() {
     const { toast } = useToast()
     const router = useRouter()
+    const auth = useAuth()
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
     defaultValues: {
-      name: "",
+      doc_type: "CEDULA",
+      doc_number: "",
+      firstName: "",
+      lastName: "",
       email: "",
       contact: "",
       address: "",
       allergies: "",
       conditions: "",
+      gender: "M"
     },
   })
 
-  function onSubmit(data: PatientFormValues) {
-    toast({
-      title: "Patient Registered",
-      description: `Successfully registered ${data.name}.`,
-    })
-    console.log(data);
-    router.push("/patients")
+  async function onSubmit(data: PatientFormValues) {
+    setIsSubmitting(true);
+
+    try {
+      // Prepare patient data for backend
+      const patientData = {
+        doc_type: data.doc_type,
+        doc_number: data.doc_number,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email || undefined,
+        phone: data.contact,
+        address: data.address || undefined,
+        birth_date: format(data.dob, "yyyy-MM-dd"),
+        gender: data.gender
+      };
+
+      const response = await fetch('/api/historia-clinica/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${auth.getToken()}`
+        },
+        body: JSON.stringify(patientData)
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data?.patient) {
+        const patientId = result.data.patient.patient_id;
+
+        // If allergies or conditions provided, create/update medical history
+        if (data.allergies || data.conditions) {
+          const medicalHistoryData = {
+            allergies: data.allergies ? data.allergies.split(',').map(a => a.trim()) : [],
+            pathologies: data.conditions ? data.conditions.split(',').map(c => c.trim()) : []
+          };
+
+          await fetch(`/api/historia-clinica/patients/${patientId}/medical-history`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${auth.getToken()}`
+            },
+            body: JSON.stringify(medicalHistoryData)
+          });
+        }
+
+        toast({
+          title: "Patient Registered",
+          description: `Successfully registered ${data.firstName} ${data.lastName}.`,
+        });
+
+        router.push("/patients");
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to register patient",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Create patient error:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while registering the patient",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -82,12 +159,60 @@ export default function NewPatientPage() {
                 <div className="space-y-8">
                     <FormField
                     control={form.control}
-                    name="name"
+                    name="doc_type"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Full Name</FormLabel>
+                        <FormLabel>Document Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select document type" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            <SelectItem value="CEDULA">Cédula</SelectItem>
+                            <SelectItem value="RUC">RUC</SelectItem>
+                            <SelectItem value="PASSPORT">Passport</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="doc_number"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Document Number</FormLabel>
                         <FormControl>
-                            <Input placeholder="John Doe" {...field} />
+                            <Input placeholder="1234567890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                            <Input placeholder="John" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Doe" {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -147,8 +272,8 @@ export default function NewPatientPage() {
                             </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                            <SelectItem value="Male">Male</SelectItem>
-                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="M">Male</SelectItem>
+                            <SelectItem value="F">Female</SelectItem>
                             <SelectItem value="Other">Other</SelectItem>
                             </SelectContent>
                         </Select>
@@ -247,8 +372,10 @@ export default function NewPatientPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-                <Button type="submit">Register Patient</Button>
+                <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>Cancel</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Registering..." : "Register Patient"}
+                </Button>
             </div>
           </form>
         </Form>

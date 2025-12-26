@@ -17,12 +17,17 @@ from auth_service.models import UserModel, RoleModel
 auth_bp = Blueprint('auth', __name__)
 
 # Usar configuración centralizada
-JWT_SECRET_KEY = Config.JWT_SECRET_KEY
 JWT_EXPIRATION_HOURS = Config.JWT_EXPIRATION_HOURS
 JWT_ALGORITHM = Config.JWT_ALGORITHM
 JWT_ISSUER = Config.JWT_ISSUER
 JWT_AUDIENCE = Config.JWT_AUDIENCE
 BCRYPT_LOG_ROUNDS = Config.BCRYPT_LOG_ROUNDS
+
+# Get appropriate signing key based on algorithm
+if JWT_ALGORITHM == 'RS256':
+    JWT_SIGNING_KEY = Config.JWT_PRIVATE_KEY
+else:
+    JWT_SIGNING_KEY = Config.JWT_SECRET_KEY
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -66,7 +71,7 @@ def login():
             'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
         }
 
-        token = jwt.encode(token_payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+        token = jwt.encode(token_payload, JWT_SIGNING_KEY, algorithm=JWT_ALGORITHM)
 
         # Prepare response
         response_data = {
@@ -137,7 +142,7 @@ def register():
             'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
         }
 
-        token = jwt.encode(token_payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+        token = jwt.encode(token_payload, JWT_SIGNING_KEY, algorithm=JWT_ALGORITHM)
 
         # Prepare response
         response_data = {

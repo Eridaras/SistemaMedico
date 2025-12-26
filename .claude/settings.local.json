@@ -9,7 +9,19 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Bash(git remote set-url:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Agregar Swagger, Tests e Integración entre Servicios\n\nMejoras implementadas:\n\n📚 Swagger/OpenAPI:\n- Agregado flask-restx a todos los requirements.txt\n- Documentación completa en SWAGGER_TESTS_INTEGRATION.md\n- Configuración de Swagger con autorización Bearer JWT\n- Ejemplos de implementación para cada servicio\n- Acceso a docs interactivos en /docs\n\n🧪 Pruebas Unitarias:\n- Agregado pytest y pytest-flask a dependencies\n- Estructura de tests documentada\n- Ejemplos de tests para Auth Service\n- Scripts de ejecución: run_tests.sh y run_tests.bat\n- Configuración de conftest.py\n\n🔗 Integración entre Servicios:\n- Nuevo módulo common/service_client.py\n- Clientes HTTP para todos los servicios\n- Ejemplos de flujos integrados\n- URLs de servicios configurables en .env\n- Documentación de casos de uso\n\n📝 Documentación:\n- Guía completa con ejemplos de código\n- Checklist de implementación\n- Scripts de testing automatizados\n- Configuración de URLs de servicios\n\nTodos los servicios ahora tienen:\n✅ Soporte para Swagger UI\n✅ Infraestructura de tests\n✅ Capacidad de comunicación entre servicios\n✅ Documentación completa\n\n🤖 Generated with Claude Code (https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Agregar Swagger, Tests e Integración entre Servicios\n\nMejoras implementadas:\n\n📚 Swagger/OpenAPI:\n- Agregado flask-restx a todos los requirements.txt\n- Documentación completa en SWAGGER_TESTS_INTEGRATION.md\n- Configuración de Swagger con autorización Bearer JWT\n- Ejemplos de implementación para cada servicio\n- Acceso a docs interactivos en /docs\n\n🧪 Pruebas Unitarias:\n- Agregado pytest y pytest-flask a dependencies\n- Estructura de tests documentada\n- Ejemplos de tests para Auth Service\n- Scripts de ejecución: run_tests.sh y run_tests.bat\n- Configuración de conftest.py\n\n🔗 Integración entre Servicios:\n- Nuevo módulo common/service_client.py\n- Clientes HTTP para todos los servicios\n- Ejemplos de flujos integrados\n- URLs de servicios configurables en .env\n- Documentación de casos de uso\n\n📝 Documentación:\n- Guía completa con ejemplos de código\n- Checklist de implementación\n- Scripts de testing automatizados\n- Configuración de URLs de servicios\n\nTodos los servicios ahora tienen:\n✅ Soporte para Swagger UI\n✅ Infraestructura de tests\n✅ Capacidad de comunicación entre servicios\n✅ Documentación completa\n\n🤖 Generated with Claude Code (https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(xargs:*)",
+      "Bash(Get-ChildItem -Recurse -File)",
+      "Bash(Where-Object { $_FullName -notmatch '\\(node_modules|\\\\.git|\\\\.next|__pycache__|venv|\\\\.venv|dist|build|\\\\.pytest_cache\\)' })",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(xcopy:*)",
+      "Bash(robocopy:*)",
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "Bash(pip install:*)",
+      "Bash(docker ps:*)"
     ],
     "deny": [],
     "ask": []

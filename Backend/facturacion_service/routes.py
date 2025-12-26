@@ -374,6 +374,54 @@ def get_dashboard_metrics(current_user):
         return error_response('An error occurred', 500)
 
 
+@facturacion_bp.route('/dashboard/stats', methods=['GET'])
+@token_required
+def get_dashboard_stats(current_user):
+    """Get dashboard stats (alias for /reports/dashboard for frontend compatibility)"""
+    try:
+        date_from = request.args.get('date_from')
+        date_to = request.args.get('date_to')
+
+        metrics = FinancialReportModel.get_dashboard_metrics(date_from, date_to)
+
+        return success_response(metrics)
+
+    except Exception as e:
+        print(f"Get dashboard stats error: {str(e)}")
+        return error_response('An error occurred', 500)
+
+
+@facturacion_bp.route('/dashboard/monthly', methods=['GET'])
+@token_required
+def get_dashboard_monthly(current_user):
+    """Get monthly income/expenses data for charts"""
+    try:
+        from datetime import datetime, timedelta
+        import calendar
+
+        date_from = request.args.get('date_from')
+        date_to = request.args.get('date_to')
+
+        if not date_from:
+            today = datetime.now()
+            first_day = today.replace(day=1)
+            date_from = (first_day - timedelta(days=180)).strftime('%Y-%m-%d')
+
+        if not date_to:
+            date_to = datetime.now().strftime('%Y-%m-%d')
+
+        monthly_data = FinancialReportModel.get_monthly_summary(date_from, date_to)
+
+        return success_response({
+            'monthly': monthly_data,
+            'period': {'from': date_from, 'to': date_to}
+        })
+
+    except Exception as e:
+        print(f"Get dashboard monthly error: {str(e)}")
+        return error_response('An error occurred', 500)
+
+
 # Health check
 @facturacion_bp.route('/health', methods=['GET'])
 def health_check():

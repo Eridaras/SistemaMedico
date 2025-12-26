@@ -67,6 +67,10 @@ instance/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# RSA Keys - CRITICAL SECURITY
+keys/jwt_private.pem
+keys/*.key
+
 # Electronic Invoicing - Sensitive Files
 backend/certificates/*.p12
 backend/certificates/*.pfx

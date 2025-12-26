@@ -11,10 +11,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.config import Config
 
 # JWT Configuration from centralized config
-JWT_SECRET_KEY = Config.JWT_SECRET_KEY
 JWT_ALGORITHM = Config.JWT_ALGORITHM
 JWT_ISSUER = Config.JWT_ISSUER
 JWT_AUDIENCE = Config.JWT_AUDIENCE
+
+# Get appropriate key based on algorithm
+if JWT_ALGORITHM == 'RS256':
+    JWT_KEY = Config.JWT_PUBLIC_KEY
+else:
+    JWT_KEY = Config.JWT_SECRET_KEY
 
 def token_required(f):
     """Decorator to protect routes that require authentication"""
@@ -34,10 +39,10 @@ def token_required(f):
             return jsonify({'message': 'Token is missing'}), 401
 
         try:
-            # Decode token with full validation
+            # Decode token with full validation using public key (RS256) or secret (HS256)
             data = jwt.decode(
                 token,
-                JWT_SECRET_KEY,
+                JWT_KEY,
                 algorithms=[JWT_ALGORITHM],
                 issuer=JWT_ISSUER,
                 audience=JWT_AUDIENCE,

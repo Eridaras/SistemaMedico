@@ -20,12 +20,36 @@ class Config:
     DB_POOL_MAX = int(os.getenv('DB_POOL_MAX', 20))
     DB_CONNECT_TIMEOUT = int(os.getenv('DB_CONNECT_TIMEOUT', 10))
 
-    # Security
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'change-this-in-production')
+    # Security - JWT with RS256 (Asymmetric)
+    JWT_ALGORITHM = os.getenv('JWT_ALGORITHM', 'RS256')
     JWT_EXPIRATION_HOURS = int(os.getenv('JWT_EXPIRATION_HOURS', 24))
-    JWT_ALGORITHM = os.getenv('JWT_ALGORITHM', 'HS256')
     JWT_ISSUER = os.getenv('JWT_ISSUER', 'sistema-medico-api')
     JWT_AUDIENCE = os.getenv('JWT_AUDIENCE', 'sistema-medico-frontend')
+
+    # RSA Keys paths
+    KEYS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'keys')
+    JWT_PRIVATE_KEY_PATH = os.path.join(KEYS_DIR, 'jwt_private.pem')
+    JWT_PUBLIC_KEY_PATH = os.path.join(KEYS_DIR, 'jwt_public.pem')
+
+    # Load RSA keys
+    _private_key_content = None
+    _public_key_content = None
+
+    if os.path.exists(JWT_PRIVATE_KEY_PATH):
+        with open(JWT_PRIVATE_KEY_PATH, 'rb') as f:
+            _private_key_content = f.read()
+
+    if os.path.exists(JWT_PUBLIC_KEY_PATH):
+        with open(JWT_PUBLIC_KEY_PATH, 'rb') as f:
+            _public_key_content = f.read()
+
+    JWT_PRIVATE_KEY = _private_key_content
+    JWT_PUBLIC_KEY = _public_key_content
+
+    # Fallback to HS256 if keys not found (for backward compatibility)
+    if not JWT_PRIVATE_KEY or not JWT_PUBLIC_KEY:
+        JWT_ALGORITHM = 'HS256'
+        JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'change-this-in-production')
     
     # Bcrypt Configuration
     # Work factor recomendado: 12-14

@@ -23,48 +23,75 @@ import {
   MoreVertical
 } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
+import { auth } from "@/lib/auth";
 
-// Mock Data matching the design
-const financialData = [
-  { name: 'Sem 1', ingresos: 4500, egresos: 2100 },
-  { name: 'Sem 2', ingresos: 5800, egresos: 3200 },
-  { name: 'Sem 3', ingresos: 7200, egresos: 2400 },
-  { name: 'Sem 4', ingresos: 6100, egresos: 2800 },
-];
+// TypeScript Interfaces
+interface DashboardStats {
+  ventas_totales: number;
+  pacientes_nuevos: number;
+  citas_hoy: number;
+  ingresos_mes: number;
+}
 
-const todaysAppointments = [
-  {
-    id: 1,
-    name: "Carlos Mendoza",
-    time: "10:30 AM",
-    type: "Consulta General",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAKQ6Ee45IRLU3KVP9d9PAkLBJpWomajVTF5_K6_R-Xms7poJknDT7bfUY6_hFJfa8oA_I4sju6HgXUZ4k1khOvsmiQwxGRjkvv1X0Yp50BsY9Esm02pEmf7vTgVxxadg85Vh_itLjtxF5GEPsHR2AhTZnQ8eT5fV3ZZXCX8RfSq4ZOFyjbZmExyijcRvRtIaVgKcUS5RoWf2pl0V1NWtTrgdsYHkWAU4lg-lVRtZCGfBBbyJMejC8v_uhDDmDTdrC4z2_nwNn4OlFy"
-  },
-  {
-    id: 2,
-    name: "Ana Jiménez",
-    time: "11:00 AM",
-    type: "Control",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAnwoBytQ8L__yDWODA5JrGsJLyAKZASOICoyynYpd60dYCz17wfgVp_8elclDltGub8pxVFtOk9YV-GiEd3SAp4tT1XjyKTfU6sUlULfxzcGd7fCw4zGtKnIV2-rG7KYsZV9zFHL0Y5t885ciJs9eLtHwgRsPfjinVGAu1E28rBM_xp_Hjr1U-CzWS8lO8AumWYvxracc1BE6Fbyanll6u87MHVuZgAy5HYR2c_7x6pIP7WYCIPiKk6U8Wbh5NgsBJlL6AoN9xM-Tm"
-  },
-  {
-    id: 3,
-    name: "Sofia Rodriguez",
-    time: "12:15 PM",
-    type: "Limpieza Dental",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDfkyH3M1CuSH1Yj6pqDmU-Sj9lCSwqy62dRc3w0NmEoyvL4kgAbFoMWOEzcGUIvioFFsebKNodZxOZnvDBAXOL_fD7HZvCm26WIJRQmzFLuEwNwC9V00kb_HreT-EKf2_0etIw7uj5hkrzwDmfhup-1jl1ZLSTyswIGugqtOH8qhZ7sJlT_8mNNB4XDQ1fJiTdbX0HFHXLeCLu1KHJIuX0N1XJCy56PmRYB18b74RXkywRtRke1v68IArDM1IdNQXDjzC7LXe2kGhR"
-  },
-  {
-    id: 4,
-    name: "Javier Torres",
-    time: "01:00 PM",
-    type: "Consulta General",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGi3e_Wzo9LwdCvYKZatIe9oWXbSLEZrkkyQ2uJjcw2zpBxJ8JC0T0X59t5jCPK5yuEtKb8DZm5R0uZPPd4sk8wg-LpWJx3JHVgOsgtZ4EWlEoPxv1dfqt2ug5Gd_q2QhO0GmDD_l6NZdSjjxQ7VvEukzFbsO4N9qCW-hR_WoNmV57who9kNaDPcOgZ13-1RoLb5Re5Xue1ShsIp9zJ4m6Syuo5slDSSujPjrgTx85Kts48nkrLtGnNEwEYo8PWQ5JeAGaYlIVwVCU"
-  }
-];
+interface FinancialData {
+  name: string;
+  ingresos: number;
+  egresos: number;
+}
+
+interface TodayAppointment {
+  appointment_id: number;
+  patient_name: string;
+  start_time: string;
+  reason: string;
+  status: string;
+}
 
 export default function DashboardPage() {
-  const [period, setPeriod] = React.useState('mes');
+  const [stats, setStats] = React.useState<DashboardStats | null>(null);
+  const [financialData, setFinancialData] = React.useState<FinancialData[]>([]);
+  const [todaysAppointments, setTodaysAppointments] = React.useState<TodayAppointment[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  // Fetch all dashboard data from backend
+  React.useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [statsRes, financialRes, appointmentsRes] = await Promise.all([
+          fetch('/api/facturacion/dashboard/stats', {
+            headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+          }),
+          fetch('/api/facturacion/dashboard/monthly', {
+            headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+          }),
+          fetch('/api/citas/appointments/today', {
+            headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+          })
+        ]);
+
+        if (statsRes.ok) {
+          const data = await statsRes.json();
+          if (data.success) setStats(data.data);
+        }
+
+        if (financialRes.ok) {
+          const data = await financialRes.json();
+          if (data.success) setFinancialData(data.data.monthly || []);
+        }
+
+        if (appointmentsRes.ok) {
+          const data = await appointmentsRes.json();
+          if (data.success) setTodaysAppointments(data.data.appointments || []);
+        }
+      } catch (err) {
+        console.error("Error loading dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <PageTransition className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
@@ -100,16 +127,16 @@ export default function DashboardPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: 'Ventas Totales', value: '$12,450.00', change: '+8.2%', trend: 'up' },
-          { label: 'Pacientes Nuevos', value: '32', change: '+5.4%', trend: 'up' },
-          { label: 'Tratamientos Vendidos', value: '56', change: '+1.8%', trend: 'up' },
-          { label: 'Gastos Totales', value: '$3,120.00', change: '-2.1%', trend: 'down' },
+          { label: 'Ventas Totales', value: `$${stats?.ventas_totales.toFixed(2) || '0.00'}`, change: '+8.2%', trend: 'up' },
+          { label: 'Pacientes Nuevos', value: stats?.pacientes_nuevos.toString() || '0', change: '+5.4%', trend: 'up' },
+          { label: 'Citas Hoy', value: stats?.citas_hoy.toString() || '0', change: '+12%', trend: 'up' },
+          { label: 'Ingresos del Mes', value: `$${stats?.ingresos_mes.toFixed(2) || '0.00'}`, change: '+3.8%', trend: 'up' },
         ].map((item, i) => (
           <Card key={i} className="border-border/50 shadow-sm transition-all hover:shadow-md">
             <CardContent className="p-6 flex flex-col gap-2">
               <p className="text-base font-medium text-muted-foreground">{item.label}</p>
               <p className="text-3xl font-bold tracking-tight text-foreground">{item.value}</p>
-              <div className={`flex items-center text-sm font-medium ${item.trend === 'up' && item.label !== 'Gastos Totales' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+              <div className={`flex items-center text-sm font-medium ${item.trend === 'up' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
                 {item.change}
                 {item.trend === 'up' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />}
               </div>
@@ -168,25 +195,34 @@ export default function DashboardPage() {
             <CardDescription>Próximos pacientes para el día.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-6 mt-2">
-              {todaysAppointments.map((apt) => (
-                <li key={apt.id} className="flex items-center gap-4">
-                  <Avatar className="h-10 w-10 border-2 border-white dark:border-gray-800 shadow-sm">
-                    <AvatarImage src={apt.avatar} alt={apt.name} />
-                    <AvatarFallback>{apt.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{apt.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {apt.time} - {apt.type}
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </li>
-              ))}
-            </ul>
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Cargando citas...
+              </div>
+            ) : todaysAppointments.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No hay citas para hoy
+              </div>
+            ) : (
+              <ul className="space-y-6 mt-2">
+                {todaysAppointments.map((apt) => (
+                  <li key={apt.appointment_id} className="flex items-center gap-4">
+                    <Avatar className="h-10 w-10 border-2 border-white dark:border-gray-800 shadow-sm">
+                      <AvatarFallback>{apt.patient_name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{apt.patient_name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {new Date(apt.start_time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {apt.reason}
+                      </p>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardContent>
         </Card>
       </div>

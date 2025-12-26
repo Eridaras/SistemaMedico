@@ -446,6 +446,33 @@ def remove_extra(current_user, extra_id):
         return error_response('An error occurred', 500)
 
 
+@citas_bp.route('/appointments/today', methods=['GET'])
+@token_required
+def get_today_appointments(current_user):
+    """Get appointments for today"""
+    try:
+        from datetime import date
+        today = date.today()
+
+        date_from = today.strftime('%Y-%m-%d')
+        date_to = today.strftime('%Y-%m-%d')
+
+        appointments = AppointmentModel.list_appointments(
+            date_from=date_from,
+            date_to=date_to
+        )
+
+        return success_response({
+            'appointments': appointments,
+            'count': len(appointments),
+            'date': today.isoformat()
+        })
+
+    except Exception as e:
+        print(f"Get today appointments error: {str(e)}")
+        return error_response('An error occurred', 500)
+
+
 # Health check
 @citas_bp.route('/health', methods=['GET'])
 def health_check():

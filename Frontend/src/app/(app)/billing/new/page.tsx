@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -16,20 +17,153 @@ import {
   Trash2,
   PlusCircle,
   Save,
-  FileText
+  FileText,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PageTransition } from "@/components/page-transition";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock Data
-const initialItems = [
-  { id: 1, name: "Consulta General Especializada", quantity: 1, price: 150000, discount: 10 },
-  { id: 2, name: "Kit de Bioseguridad", quantity: 1, price: 25000, discount: 0 },
-];
+interface Product {
+  product_id: number;
+  name: string;
+  unit_price: number;
+  current_stock: number;
+}
 
-export default function BillingPage() {
-  const [items, setItems] = React.useState(initialItems);
+interface Patient {
+  patient_id: number;
+  full_name: string;
+  identification: string;
+  phone: string;
+}
+
+interface InvoiceItem {
+  id: number;
+  product_id?: number;
+  name: string;
+  quantity: number;
+  price: number;
+  discount: number;
+}
+
+export default function NewBillingPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [items, setItems] = React.useState<InvoiceItem[]>([]);
+  const [selectedPatient, setSelectedPatient] = React.useState<Patient | null>(null);
+  const [searchPatient, setSearchPatient] = React.useState("");
+  const [searchProduct, setSearchProduct] = React.useState("");
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [paymentMethod, setPaymentMethod] = React.useState("Efectivo");
+  const [loading, setLoading] = React.useState(false);
+  const [searchingPatient, setSearchingPatient] = React.useState(false);
+  const [searchingProduct, setSearchingProduct] = React.useState(false);
+
+  // Search patient by identification
+  const handleSearchPatient = async () => {
+    if (!searchPatient.trim()) return;
+
+    setSearchingPatient(true);
+    try {
+      const res = await fetch(`/api/historia-clinica/patients/search?identification=${searchPatient}`);
+      const data = await res.json();
+
+      if (data.success && data.data) {
+        setSelectedPatient(data.data);
+        toast({
+          title: "Paciente encontrado",
+          description: `${data.data.full_name} - ${data.data.identification}`,
+        });
+      } else {
+        toast({
+          title: "Paciente no encontrado",
+          description: "Verifique el número de cédula",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo buscar el paciente",
+        variant: "destructive",
+      });
+    } finally {
+      setSearchingPatient(false);
+    }
+  };
+
+  // Search products
+  const handleSearchProduct = async () => {
+    if (!searchProduct.trim()) return;
+
+    setSearchingProduct(true);
+    try {
+      const res = await fetch(`/api/inventario/products?search=${searchProduct}`);
+      const data = await res.json();
+
+      if (data.success && data.data.products) {
+        setProducts(data.data.products);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo buscar productos",
+        variant: "destructive",
+      });
+    } finally {
+      setSearchingProduct(false);
+    }
+  };
+
+  // Add product to invoice
+  const handleAddProduct = (product: Product) => {
+    const exists = items.find(item => item.product_id === product.product_id);
+
+    if (exists) {
+      setItems(items.map(item =>
+        item.product_id === product.product_id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      setItems([...items, {
+        id: Date.now(),
+        product_id: product.product_id,
+        name: product.name,
+        quantity: 1,
+        price: parseFloat(product.unit_price.toString()),
+        discount: 0
+      }]);
+    }
+
+    setSearchProduct("");
+    setProducts([]);
+  };
+
+  // Remove item
+  const handleRemoveItem = (id: number) => {
+    setItems(items.filter(item => item.id !== id));
+  };
+
+  // Update quantity
+  const handleQuantityChange = (id: number, quantity: number) => {
+    if (quantity < 1) return;
+    setItems(items.map(item =>
+      item.id === id ? { ...item, quantity } : item
+    ));
+  };
+
+  // Update discount
+  const handleDiscountChange = (id: number, discount: number) => {
+    if (discount < 0 || discount > 100) return;
+    setItems(items.map(item =>
+      item.id === id ? { ...item, discount } : item
+    ));
+  };
 
   // Calculations
   const subtotal = items.reduce((acc, item) => {
@@ -42,56 +176,196 @@ export default function BillingPage() {
     return acc + (item.price * item.quantity * (item.discount / 100));
   }, 0);
 
-  const tax = subtotal * 0.19; // 19% IVA
-  const total = subtotal + tax;
+  const ivaPercentage = 15; // Ecuador IVA 15%
+  const iva = subtotal * (ivaPercentage / 100);
+  const total = subtotal + iva;
+
+  // Create invoice
+  const handleCreateInvoice = async (isDraft: boolean = false) => {
+    if (!selectedPatient) {
+      toast({
+        title: "Error",
+        description: "Debe seleccionar un paciente",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (items.length === 0) {
+      toast({
+        title: "Error",
+        description: "Debe agregar al menos un producto",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        patient_id: selectedPatient.patient_id,
+        subtotal: subtotal,
+        iva_percentage: ivaPercentage,
+        iva: iva,
+        total: total,
+        payment_method: paymentMethod,
+        status: isDraft ? 'pending' : 'paid',
+        items: items.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: item.price,
+          discount_percentage: item.discount
+        }))
+      };
+
+      const res = await fetch('/api/facturacion/invoices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast({
+          title: "Factura creada",
+          description: `Factura #${data.data.invoice_id} generada exitosamente`,
+        });
+        router.push('/billing');
+      } else {
+        throw new Error(data.message || 'Error al crear factura');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudo crear la factura",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <PageTransition className="flex flex-col gap-8 w-full max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-foreground">Generar Nueva Factura</h1>
-          <p className="text-muted-foreground">Crea y envía facturas a tus pacientes de forma rápida y sencilla.</p>
+          <h1 className="text-3xl font-bold">Nueva Factura</h1>
+          <p className="text-muted-foreground">Generar nueva factura para paciente</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" className="gap-2">
-            <Save className="h-4 w-4" /> Guardar Borrador
+          <Button variant="outline" onClick={() => router.push('/billing')}>
+            Cancelar
           </Button>
-          <Button className="gap-2">
-            <FileText className="h-4 w-4" /> Generar Factura
+          <Button
+            variant="outline"
+            onClick={() => handleCreateInvoice(true)}
+            disabled={loading || !selectedPatient || items.length === 0}
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="mr-2 h-4 w-4" />}
+            Guardar Borrador
+          </Button>
+          <Button
+            onClick={() => handleCreateInvoice(false)}
+            disabled={loading || !selectedPatient || items.length === 0}
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <FileText className="mr-2 h-4 w-4" />}
+            Generar Factura
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 flex flex-col gap-6">
-          {/* Patient Data */}
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Patient Search */}
           <Card>
             <CardHeader>
-              <CardTitle>Datos del Paciente</CardTitle>
+              <CardTitle>Información del Paciente</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Buscar Paciente</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Escribe el nombre o DNI" className="pl-9" defaultValue="Ana María Torres" />
+              <div className="flex gap-2 mb-4">
+                <Input
+                  placeholder="Buscar por cédula..."
+                  value={searchPatient}
+                  onChange={(e) => setSearchPatient(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearchPatient()}
+                />
+                <Button onClick={handleSearchPatient} disabled={searchingPatient}>
+                  {searchingPatient ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                </Button>
+              </div>
+
+              {selectedPatient && (
+                <div className="p-4 bg-muted rounded-lg">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Nombre</p>
+                      <p className="font-medium">{selectedPatient.full_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Cédula</p>
+                      <p className="font-medium">{selectedPatient.identification}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Teléfono</p>
+                      <p className="font-medium">{selectedPatient.phone}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Fecha de Factura</label>
-                  <Input type="date" defaultValue="2023-10-27" />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <label className="text-sm font-medium">Descripción (Opcional)</label>
-                  <Input placeholder="Ej: Consulta de seguimiento, procedimiento dental, etc." />
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Invoice Items */}
+          {/* Products Search */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Agregar Productos/Servicios</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2 mb-4">
+                <Input
+                  placeholder="Buscar productos..."
+                  value={searchProduct}
+                  onChange={(e) => setSearchProduct(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearchProduct()}
+                />
+                <Button onClick={handleSearchProduct} disabled={searchingProduct}>
+                  {searchingProduct ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                </Button>
+              </div>
+
+              {products.length > 0 && (
+                <div className="space-y-2">
+                  {products.map(product => (
+                    <div
+                      key={product.product_id}
+                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted cursor-pointer"
+                      onClick={() => handleAddProduct(product)}
+                    >
+                      <div>
+                        <p className="font-medium">{product.name}</p>
+                        <p className="text-sm text-muted-foreground">Stock: {product.current_stock}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">${product.unit_price.toFixed(2)}</p>
+                        <Button size="sm" variant="ghost">
+                          <PlusCircle className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Items Table */}
           <Card>
             <CardHeader>
               <CardTitle>Detalles de la Factura</CardTitle>
@@ -100,76 +374,107 @@ export default function BillingPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Producto / Servicio</TableHead>
-                    <TableHead className="w-24">Cant.</TableHead>
-                    <TableHead className="w-32">Precio Unit.</TableHead>
-                    <TableHead className="w-24">Desc. %</TableHead>
-                    <TableHead className="text-right">Subtotal</TableHead>
-                    <TableHead className="w-12"></TableHead>
+                    <TableHead>Producto</TableHead>
+                    <TableHead className="text-center">Cantidad</TableHead>
+                    <TableHead className="text-right">Precio</TableHead>
+                    <TableHead className="text-center">Descuento %</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {items.map((item) => {
-                    const itemTotal = item.price * item.quantity * (1 - item.discount / 100);
-                    return (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>${item.price.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Input className="h-8 w-16" defaultValue={item.discount} />
-                        </TableCell>
-                        <TableCell className="text-right font-medium">${itemTotal.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="icon" className="hover:text-red-500 hover:bg-red-50">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {items.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.name}</TableCell>
+                      <TableCell className="text-center">
+                        <Input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                          className="w-20 text-center"
+                          min="1"
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                      <TableCell className="text-center">
+                        <Input
+                          type="number"
+                          value={item.discount}
+                          onChange={(e) => handleDiscountChange(item.id, parseFloat(e.target.value) || 0)}
+                          className="w-20 text-center"
+                          min="0"
+                          max="100"
+                        />
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        ${((item.price * item.quantity) * (1 - item.discount / 100)).toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveItem(item.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {items.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        No hay productos agregados. Busque y agregue productos arriba.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
-              <Button variant="ghost" className="mt-4 gap-2 text-primary hover:text-primary hover:bg-primary/10 w-full justify-start">
-                <PlusCircle className="h-4 w-4" />
-                Agregar producto o servicio
-              </Button>
             </CardContent>
           </Card>
         </div>
 
-        {/* Summary Side Panel */}
-        <div className="lg:col-span-1">
-          <Card className="sticky top-6">
+        {/* Summary Sidebar */}
+        <div className="space-y-6">
+          <Card>
             <CardHeader>
-              <CardTitle>Resumen de Pago</CardTitle>
+              <CardTitle>Resumen</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between text-muted-foreground">
-                <span>Subtotal</span>
-                <span className="text-foreground font-medium">${subtotal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Descuentos</span>
-                <span className="text-red-500 font-medium">-${totalDiscount.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Impuestos (IVA 19%)</span>
-                <span className="text-foreground font-medium">${tax.toLocaleString()}</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between text-xl font-bold">
-                <span>Total a Pagar</span>
-                <span>${total.toLocaleString()}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium">${subtotal.toFixed(2)}</span>
+                </div>
+                {totalDiscount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Descuentos</span>
+                    <span className="font-medium text-green-600">-${totalDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">IVA ({ivaPercentage}%)</span>
+                  <span className="font-medium">${iva.toFixed(2)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <span className="font-semibold">Total</span>
+                  <span className="font-bold text-xl">${total.toFixed(2)}</span>
+                </div>
               </div>
 
-              <div className="pt-4 space-y-3">
-                <Button className="w-full h-12 text-base shadow-md">
-                  Generar y Enviar Factura
-                </Button>
-                <Button variant="outline" className="w-full h-12 text-base">
-                  Guardar Borrador
-                </Button>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Método de Pago</label>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Efectivo">Efectivo</SelectItem>
+                    <SelectItem value="Tarjeta">Tarjeta</SelectItem>
+                    <SelectItem value="Transferencia">Transferencia</SelectItem>
+                    <SelectItem value="Cheque">Cheque</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>

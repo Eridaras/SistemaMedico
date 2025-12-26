@@ -1,0 +1,23 @@
+# Traefik Configuration - OMNISCIENT ARCHITECT V9.0
+# Puerto Maestro: 3333 (único punto de entrada)
+
+api:
+  insecure: true
+  dashboard: true
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: traefik-net
+
+entryPoints:
+  web:
+    address: ":3333"
+  dashboard:
+    address: ":8080"
+
+log:
+  level: INFO
+
+accessLog:
+  enabled: true
