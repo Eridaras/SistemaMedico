@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BarChart,
   Bar,
@@ -19,11 +18,12 @@ import {
 } from "recharts";
 import {
   ArrowUp,
-  ArrowDown,
-  MoreVertical
+  ArrowDown
 } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
 import { auth } from "@/lib/auth";
+import { TodayAppointmentsWidget } from "@/components/today-appointments-widget";
+import { LowStockWidget } from "@/components/low-stock-widget";
 
 // TypeScript Interfaces
 interface DashboardStats {
@@ -39,32 +39,19 @@ interface FinancialData {
   egresos: number;
 }
 
-interface TodayAppointment {
-  appointment_id: number;
-  patient_name: string;
-  start_time: string;
-  reason: string;
-  status: string;
-}
-
 export default function DashboardPage() {
   const [stats, setStats] = React.useState<DashboardStats | null>(null);
   const [financialData, setFinancialData] = React.useState<FinancialData[]>([]);
-  const [todaysAppointments, setTodaysAppointments] = React.useState<TodayAppointment[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
   // Fetch all dashboard data from backend
   React.useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [statsRes, financialRes, appointmentsRes] = await Promise.all([
+        const [statsRes, financialRes] = await Promise.all([
           fetch('/api/facturacion/dashboard/stats', {
             headers: { 'Authorization': `Bearer ${auth.getToken()}` }
           }),
           fetch('/api/facturacion/dashboard/monthly', {
-            headers: { 'Authorization': `Bearer ${auth.getToken()}` }
-          }),
-          fetch('/api/citas/appointments/today', {
             headers: { 'Authorization': `Bearer ${auth.getToken()}` }
           })
         ]);
@@ -78,15 +65,8 @@ export default function DashboardPage() {
           const data = await financialRes.json();
           if (data.success) setFinancialData(data.data.monthly || []);
         }
-
-        if (appointmentsRes.ok) {
-          const data = await appointmentsRes.json();
-          if (data.success) setTodaysAppointments(data.data.appointments || []);
-        }
       } catch (err) {
         console.error("Error loading dashboard:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -146,9 +126,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Charts Section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         {/* Income vs Expenses Chart */}
-        <Card className="lg:col-span-2 border-border/50 shadow-sm">
+        <Card className="lg:col-span-3 border-border/50 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
               <CardTitle className="text-lg font-bold">Ingresos vs. Egresos</CardTitle>
@@ -188,44 +168,14 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Today's Appointments List */}
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg font-bold">Citas de Hoy</CardTitle>
-            <CardDescription>Próximos pacientes para el día.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="text-center py-8 text-muted-foreground">
-                Cargando citas...
-              </div>
-            ) : todaysAppointments.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No hay citas para hoy
-              </div>
-            ) : (
-              <ul className="space-y-6 mt-2">
-                {todaysAppointments.map((apt) => (
-                  <li key={apt.appointment_id} className="flex items-center gap-4">
-                    <Avatar className="h-10 w-10 border-2 border-white dark:border-gray-800 shadow-sm">
-                      <AvatarFallback>{apt.patient_name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{apt.patient_name}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {new Date(apt.start_time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {apt.reason}
-                      </p>
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+        {/* Today's Appointments Widget */}
+        <div className="lg:col-span-2">
+          <TodayAppointmentsWidget />
+        </div>
       </div>
+
+      {/* Low Stock Widget */}
+      <LowStockWidget />
     </PageTransition>
   );
 }

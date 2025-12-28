@@ -11,8 +11,7 @@ import {
   Package,
   Search,
   Settings,
-  HelpCircle,
-  Bell
+  HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +22,7 @@ import {
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { auth } from '@/lib/auth';
+import { NotificationsPanel } from '@/components/notifications-panel';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -138,10 +138,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-muted-foreground">
-              <Bell className="h-5 w-5" />
-              <span className="sr-only">Notifications</span>
-            </Button>
+            <NotificationsPanel />
             <Avatar className="h-9 w-9 border border-border md:hidden">
               <AvatarImage src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXQC5a7tykWxIi6RHgQaM0SCVTR1MQLJoRC-AsVYhDaz4YZUfhLJsDTvUzW-M3kDUpJKqKP5TOfMqcYiBURVagtvkMMkfJlHs0JWNZ1exAyiCyZBALOWEs9DqvksJI-3GlVcmVls5INbDSiNzAFwEvuqixVIuq2jYGb48inwNOvlfgcmszcdBDb7ab__TQbGd52UvqmFJG3CgsCBvr1R7hU6GZyYAFBgJ0tIFQCEYN8ZNfIhilVG3ta5hPfiffOthJtLl7YYv8TPtg" alt="Dr. Elena" />
               <AvatarFallback>EV</AvatarFallback>

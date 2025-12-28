@@ -139,6 +139,17 @@ def create_appointment(current_user):
             status=data.get('status', 'PENDING')
         )
 
+        # Sync to Google Calendar if enabled (background task, don't block response)
+        try:
+            from common.google_calendar import CalendarSyncManager
+            CalendarSyncManager.sync_appointment_create(
+                appointment['appointment_id'],
+                data['doctor_id']
+            )
+        except Exception as e:
+            print(f"Google Calendar sync warning: {str(e)}")
+            # Don't fail the request if calendar sync fails
+
         return success_response({'appointment': appointment}, 'Appointment created successfully', 201)
 
     except Exception as e:
