@@ -257,7 +257,9 @@ export default function BillingListPage() {
                   </TableCell>
                   <TableCell className="text-muted-foreground font-medium">${invoice.total.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">Ver Detalle</Button>
+                    <Link href={`/billing/${invoice.invoice_id}`}>
+                      <Button variant="ghost" size="sm">Ver Detalle</Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))

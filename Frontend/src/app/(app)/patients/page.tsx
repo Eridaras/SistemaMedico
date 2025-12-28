@@ -22,6 +22,8 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PageTransition } from "@/components/page-transition";
 import { auth } from "@/lib/auth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Patient {
   patient_id: number;
@@ -34,6 +36,7 @@ interface Patient {
 }
 
 export default function PatientsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -93,10 +96,12 @@ export default function PatientsPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button className="w-full md:w-auto gap-2 bg-primary hover:bg-primary/90">
-            <Plus className="h-4 w-4" />
-            Agregar Paciente
-          </Button>
+          <Link href="/patients/new">
+            <Button className="w-full md:w-auto gap-2 bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4" />
+              Agregar Paciente
+            </Button>
+          </Link>
         </div>
 
         {/* Patients Table */}
@@ -144,15 +149,35 @@ export default function PatientsPage() {
                     <TableCell className="text-muted-foreground text-sm">{patient.email}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                        <Link href={`/patients/${patient.patient_id}/edit`}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                            title="Editar paciente"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          title="Agendar cita"
+                          onClick={() => router.push(`/appointments?patient_id=${patient.patient_id}&patient_name=${encodeURIComponent(patient.first_name + ' ' + patient.last_name)}`)}
+                        >
                           <CalendarPlus className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                          <FileText className="h-4 w-4" />
-                        </Button>
+                        <Link href={`/patients/${patient.patient_id}`}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                            title="Ver historia clínica"
+                          >
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                        </Link>
                       </div>
                     </TableCell>
                   </TableRow>
