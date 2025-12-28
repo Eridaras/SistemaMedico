@@ -413,3 +413,61 @@ class FinancialReportModel:
                 'profit': profit,
                 'profit_margin': (profit / total_income * 100) if total_income > 0 else 0
             }
+
+    @staticmethod
+    def get_monthly_summary(date_from, date_to):
+        """Get monthly income vs expenses for charts"""
+        import calendar
+        from datetime import datetime
+
+        with db.get_cursor() as cursor:
+            # Get monthly income grouped by month
+            cursor.execute("""
+                SELECT
+                    TO_CHAR(invoice_date, 'Mon') as month_name,
+                    EXTRACT(MONTH FROM invoice_date) as month_num,
+                    COALESCE(SUM(total), 0) as ingresos
+                FROM invoices
+                WHERE invoice_date BETWEEN %s AND %s
+                    AND status IN ('paid', 'pending')
+                GROUP BY month_num, month_name
+                ORDER BY month_num
+            """, (date_from, date_to))
+
+            income_by_month = {row['month_name']: float(row['ingresos']) for row in cursor.fetchall()}
+
+            # Get monthly expenses grouped by month
+            cursor.execute("""
+                SELECT
+                    TO_CHAR(expense_date, 'Mon') as month_name,
+                    EXTRACT(MONTH FROM expense_date) as month_num,
+                    COALESCE(SUM(amount), 0) as egresos
+                FROM expenses
+                WHERE expense_date BETWEEN %s AND %s
+                GROUP BY month_num, month_name
+                ORDER BY month_num
+            """, (date_from, date_to))
+
+            expense_by_month = {row['month_name']: float(row['egresos']) for row in cursor.fetchall()}
+
+            # Combine data for last 6 months
+            result = []
+            start_date = datetime.strptime(date_from, '%Y-%m-%d')
+            end_date = datetime.strptime(date_to, '%Y-%m-%d')
+
+            current = start_date
+            while current <= end_date:
+                month_abbr = current.strftime('%b')
+                result.append({
+                    'name': month_abbr,
+                    'ingresos': income_by_month.get(month_abbr, 0),
+                    'egresos': expense_by_month.get(month_abbr, 0)
+                })
+
+                # Move to next month
+                if current.month == 12:
+                    current = current.replace(year=current.year + 1, month=1)
+                else:
+                    current = current.replace(month=current.month + 1)
+
+            return result
