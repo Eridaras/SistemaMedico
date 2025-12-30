@@ -9,15 +9,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from common.auth_middleware import token_required
 from common.utils import success_response, error_response, get_pagination_params
-from facturacion_service.models import InvoiceModel
-from facturacion_service.electronic_invoice_models import (
+from models import InvoiceModel
+from electronic_invoice_models import (
     SRIConfigurationModel, InvoiceItemModel, InvoicePaymentModel,
     InvoiceAdditionalInfoModel, SRIAuthorizationLogModel, ElectronicInvoiceModel
 )
-from facturacion_service.sri_electronic_invoice import (
+from sri_electronic_invoice import (
     SRIElectronicInvoice, SRIWebService, FORMAS_PAGO
 )
-from facturacion_service.xml_storage import xml_storage
+from xml_storage import xml_storage
 
 electronic_invoice_bp = Blueprint('electronic_invoice', __name__)
 

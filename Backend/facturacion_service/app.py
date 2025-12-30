@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from facturacion_service.routes import facturacion_bp
-from facturacion_service.electronic_invoice_routes import electronic_invoice_bp
+from routes import facturacion_bp
+from electronic_invoice_routes import electronic_invoice_bp
 
 # Create Flask app
 app = Flask(__name__)

@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from common.auth_middleware import token_required
 from common.utils import success_response, error_response, get_pagination_params, calculate_iva
-from facturacion_service.models import InvoiceModel, OperationalExpenseModel, FinancialReportModel
+from models import InvoiceModel, OperationalExpenseModel, FinancialReportModel
 
 facturacion_bp = Blueprint('facturacion', __name__)
 

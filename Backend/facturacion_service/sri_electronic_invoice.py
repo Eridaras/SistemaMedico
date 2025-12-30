@@ -292,7 +292,7 @@ class SRIElectronicInvoice:
         Returns:
             Signed XML string
         """
-        from facturacion_service.sri_production import XMLDigitalSigner
+        from sri_production import XMLDigitalSigner
 
         try:
             signer = XMLDigitalSigner(certificate_path, password)
@@ -365,7 +365,7 @@ class SRIWebService:
         Returns:
             Response from SRI (RECIBIDA, DEVUELTA, or error)
         """
-        from facturacion_service.sri_production import SRISOAPClient
+        from sri_production import SRISOAPClient
 
         try:
             client = SRISOAPClient(self.ambiente)
@@ -393,7 +393,7 @@ class SRIWebService:
         Returns:
             Authorization information (AUTORIZADO, NO AUTORIZADO, EN PROCESO)
         """
-        from facturacion_service.sri_production import SRISOAPClient
+        from sri_production import SRISOAPClient
 
         try:
             client = SRISOAPClient(self.ambiente)

@@ -17,7 +17,7 @@ class UserModel:
             cursor.execute("""
                 SELECT u.user_id, u.role_id, u.full_name, u.email,
                        u.password_hash, u.is_active, u.created_at,
-                       r.name as role_name, r.menu_config
+                       r.name as role_name, NULL as menu_config
                 FROM users u
                 LEFT JOIN roles r ON u.role_id = r.role_id
                 WHERE u.email = %s
@@ -31,7 +31,7 @@ class UserModel:
             cursor.execute("""
                 SELECT u.user_id, u.role_id, u.full_name, u.email,
                        u.is_active, u.created_at,
-                       r.name as role_name, r.menu_config
+                       r.name as role_name, NULL as menu_config
                 FROM users u
                 LEFT JOIN roles r ON u.role_id = r.role_id
                 WHERE u.user_id = %s

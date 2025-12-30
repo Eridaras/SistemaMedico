@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.auth_middleware import token_required
 from common.utils import (success_response, error_response, get_pagination_params,
                          validate_email, validate_cedula, validate_ruc)
-from historia_clinica_service.models import PatientModel, MedicalHistoryModel, ClinicalNoteModel
+from models import PatientModel, MedicalHistoryModel, ClinicalNoteModel
 
 historia_clinica_bp = Blueprint('historia_clinica', __name__)
 

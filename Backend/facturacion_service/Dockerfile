@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
+COPY requirements-base.txt /app/requirements-base.txt
+
 COPY facturacion_service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -19,8 +21,10 @@ COPY common/ /app/common/
 # Copy service code
 COPY facturacion_service/ /app/
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+# Create non-root user and storage directory
+RUN useradd -m -u 1000 appuser && \
+    mkdir -p /storage/xml_facturas && \
+    chown -R appuser:appuser /app /storage
 USER appuser
 
 # Expose port

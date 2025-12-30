@@ -1,5 +1,31 @@
-# Historia Clinica Service Dependencies
-# Sprint 2 - Diciembre 2025
+# Framework Web
+Flask==3.1.0
+Flask-CORS==4.0.0
+flask-restx==1.3.0
 
-# Incluir dependencias base
--r ../requirements-base.txt
+# Seguridad
+flask-talisman==1.1.0
+PyJWT==2.8.0
+bcrypt==4.1.2
+
+# Base de Datos
+psycopg2-binary==2.9.9
+
+# Caching
+flask-caching==2.3.0
+redis==5.2.1
+
+# Rate Limiting
+flask-limiter==3.9.0
+
+# Compression
+flask-compress==1.15
+
+# Métricas y ASGI
+prometheus-flask-exporter==0.23.0
+uvicorn[standard]==0.27.1
+gunicorn==21.2.0
+
+# Utilidades
+python-dotenv==1.0.0
+requests==2.31.0

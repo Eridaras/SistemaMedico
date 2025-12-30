@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from inventario_service.routes import inventario_bp
+from routes import inventario_bp
 
 # Create Flask app
 app = Flask(__name__)

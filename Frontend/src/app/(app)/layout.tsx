@@ -23,6 +23,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { auth } from '@/lib/auth';
 import { NotificationsPanel } from '@/components/notifications-panel';
+import { AuthProvider } from '@/components/auth-provider';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -107,48 +108,50 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-card md:block">
-        <SidebarContent />
-      </div>
-      <div className="flex flex-col h-screen overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4 lg:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden shrink-0">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-[280px]">
-              <SidebarContent />
-            </SheetContent>
-          </Sheet>
+    <AuthProvider>
+      <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
+        <div className="hidden border-r bg-card md:block">
+          <SidebarContent />
+        </div>
+        <div className="flex flex-col h-screen overflow-hidden">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4 lg:px-6">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden shrink-0">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-[280px]">
+                <SidebarContent />
+              </SheetContent>
+            </Sheet>
 
-          {/* Search Bar */}
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Buscar pacientes, citas..."
-                className="w-full rounded-lg bg-background pl-9 md:w-[320px] lg:w-[440px]"
-              />
+            {/* Search Bar */}
+            <div className="w-full flex-1 md:w-auto md:flex-none">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Buscar pacientes, citas..."
+                  className="w-full rounded-lg bg-background pl-9 md:w-[320px] lg:w-[440px]"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <NotificationsPanel />
-            <Avatar className="h-9 w-9 border border-border md:hidden">
-              <AvatarImage src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXQC5a7tykWxIi6RHgQaM0SCVTR1MQLJoRC-AsVYhDaz4YZUfhLJsDTvUzW-M3kDUpJKqKP5TOfMqcYiBURVagtvkMMkfJlHs0JWNZ1exAyiCyZBALOWEs9DqvksJI-3GlVcmVls5INbDSiNzAFwEvuqixVIuq2jYGb48inwNOvlfgcmszcdBDb7ab__TQbGd52UvqmFJG3CgsCBvr1R7hU6GZyYAFBgJ0tIFQCEYN8ZNfIhilVG3ta5hPfiffOthJtLl7YYv8TPtg" alt="Dr. Elena" />
-              <AvatarFallback>EV</AvatarFallback>
-            </Avatar>
-          </div>
-        </header>
-        <main className="flex-1 overflow-y-auto bg-background p-4 lg:p-8">
-          {children}
-        </main>
+            <div className="flex items-center gap-4">
+              <NotificationsPanel />
+              <Avatar className="h-9 w-9 border border-border md:hidden">
+                <AvatarImage src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXQC5a7tykWxIi6RHgQaM0SCVTR1MQLJoRC-AsVYhDaz4YZUfhLJsDTvUzW-M3kDUpJKqKP5TOfMqcYiBURVagtvkMMkfJlHs0JWNZ1exAyiCyZBALOWEs9DqvksJI-3GlVcmVls5INbDSiNzAFwEvuqixVIuq2jYGb48inwNOvlfgcmszcdBDb7ab__TQbGd52UvqmFJG3CgsCBvr1R7hU6GZyYAFBgJ0tIFQCEYN8ZNfIhilVG3ta5hPfiffOthJtLl7YYv8TPtg" alt="Dr. Elena" />
+                <AvatarFallback>EV</AvatarFallback>
+              </Avatar>
+            </div>
+          </header>
+          <main className="flex-1 overflow-y-auto bg-background p-4 lg:p-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 }

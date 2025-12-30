@@ -254,6 +254,167 @@ def update_notification_preferences(current_user):
         return error_response('An error occurred', 500)
 
 
+# ============= REMINDER SETTINGS =============
+
+@notifications_bp.route('/reminder-settings', methods=['GET'])
+@token_required
+def get_reminder_settings(current_user):
+    """Get reminder settings for current user"""
+    try:
+        from common.reminder_manager import ReminderManager
+
+        settings = ReminderManager.get_user_settings(current_user['user_id'])
+
+        if not settings:
+            # Return default settings
+            return success_response({
+                'email_enabled': True,
+                'email_hours_before': [24, 3],
+                'whatsapp_enabled': False,
+                'whatsapp_hours_before': [24],
+                'auto_send_enabled': True,
+                'send_on_days': ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+                'quiet_hours_start': '22:00:00',
+                'quiet_hours_end': '08:00:00'
+            })
+
+        return success_response(settings)
+
+    except Exception as e:
+        print(f"Get reminder settings error: {str(e)}")
+        return error_response('An error occurred', 500)
+
+
+@notifications_bp.route('/reminder-settings', methods=['PUT'])
+@token_required
+def update_reminder_settings(current_user):
+    """Update reminder settings for current user"""
+    try:
+        from common.reminder_manager import ReminderManager
+
+        data = request.get_json()
+
+        if not data:
+            return error_response('No data provided', 400)
+
+        settings = ReminderManager.upsert_user_settings(
+            current_user['user_id'],
+            **data
+        )
+
+        if not settings:
+            return error_response('No valid fields to update', 400)
+
+        return success_response(settings, 'Reminder settings updated successfully')
+
+    except Exception as e:
+        print(f"Update reminder settings error: {str(e)}")
+        return error_response('An error occurred', 500)
+
+
+@notifications_bp.route('/reminder-logs', methods=['GET'])
+@token_required
+def get_reminder_logs(current_user):
+    """Get reminder logs (filtered by user role)"""
+    try:
+        from common.reminder_manager import ReminderManager
+
+        appointment_id = request.args.get('appointment_id', type=int)
+        limit = request.args.get('limit', 100, type=int)
+
+        # Doctors and admins can see logs
+        if current_user.get('role') not in ['doctor', 'admin']:
+            return error_response('Unauthorized', 403)
+
+        logs = ReminderManager.get_reminder_logs(
+            appointment_id=appointment_id,
+            limit=limit
+        )
+
+        return success_response({
+            'logs': logs,
+            'count': len(logs)
+        })
+
+    except Exception as e:
+        print(f"Get reminder logs error: {str(e)}")
+        return error_response('An error occurred', 500)
+
+
+@notifications_bp.route('/reminders/send-now', methods=['POST'])
+@token_required
+def send_reminders_now(current_user):
+    """Manually trigger reminder processing (admin/doctor only)"""
+    try:
+        from common.reminder_manager import ReminderManager
+
+        # Only admins and doctors can trigger this
+        if current_user.get('role') not in ['admin', 'doctor']:
+            return error_response('Unauthorized', 403)
+
+        data = request.get_json() or {}
+        appointment_id = data.get('appointment_id')
+        hours_before = data.get('hours_before', 24)
+
+        reminder_manager = ReminderManager()
+
+        if appointment_id:
+            # Send reminders for specific appointment
+            from common.database import db
+            with db.get_cursor() as cursor:
+                cursor.execute("""
+                    SELECT
+                        a.appointment_id,
+                        a.start_time,
+                        a.doctor_id,
+                        a.reason,
+                        p.patient_id,
+                        p.first_name || ' ' || p.last_name as patient_name,
+                        p.email as patient_email,
+                        p.phone as patient_phone,
+                        u.full_name as doctor_name
+                    FROM appointments a
+                    LEFT JOIN patients p ON a.patient_id = p.patient_id
+                    LEFT JOIN users u ON a.doctor_id = u.user_id
+                    WHERE a.appointment_id = %s
+                """, (appointment_id,))
+
+                appointment = cursor.fetchone()
+
+                if not appointment:
+                    return error_response('Appointment not found', 404)
+
+                # Check if user has permission
+                if current_user.get('role') != 'admin' and appointment['doctor_id'] != current_user['user_id']:
+                    return error_response('Unauthorized', 403)
+
+                results = {
+                    'email_sent': False,
+                    'whatsapp_sent': False
+                }
+
+                # Get user settings
+                settings = ReminderManager.get_user_settings(current_user['user_id'])
+
+                if settings and settings.get('email_enabled'):
+                    results['email_sent'] = reminder_manager.send_email_reminder(appointment, hours_before)
+
+                if settings and settings.get('whatsapp_enabled'):
+                    results['whatsapp_sent'] = reminder_manager.send_whatsapp_reminder(appointment, hours_before)
+
+                return success_response(results, 'Reminders sent')
+        else:
+            # Process all scheduled reminders
+            stats = reminder_manager.process_scheduled_reminders()
+            return success_response(stats, 'Scheduled reminders processed')
+
+    except Exception as e:
+        print(f"Send reminders now error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return error_response('An error occurred', 500)
+
+
 # Health check
 @notifications_bp.route('/health', methods=['GET'])
 def health_check():

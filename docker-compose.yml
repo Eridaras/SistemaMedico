@@ -19,23 +19,23 @@ services:
       - traefik-net
     restart: unless-stopped
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: medical_postgres
-    environment:
-      POSTGRES_DB: medical_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - traefik-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+# postgres:
+  #   image: postgres:16-alpine
+  #   container_name: medical_postgres
+  #   environment:
+  #     POSTGRES_DB: medical_db
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - traefik-net
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   restart: unless-stopped
 
   redis:
     image: redis:7-alpine
@@ -50,12 +50,11 @@ services:
       dockerfile: auth_service/Dockerfile
     container_name: medical_auth
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/medical_db
+      - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-development-secret-key}
       - FLASK_ENV=development
     depends_on:
-      - postgres
       - redis
     networks:
       - traefik-net
@@ -71,11 +70,10 @@ services:
       dockerfile: inventario_service/Dockerfile
     container_name: medical_inventario
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/medical_db
+      - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
     depends_on:
-      - postgres
       - redis
     networks:
       - traefik-net
@@ -91,11 +89,10 @@ services:
       dockerfile: historia_clinica_service/Dockerfile
     container_name: medical_historia
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/medical_db
+      - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
     depends_on:
-      - postgres
       - redis
     networks:
       - traefik-net
@@ -111,11 +108,10 @@ services:
       dockerfile: facturacion_service/Dockerfile
     container_name: medical_facturacion
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/medical_db
+      - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
     depends_on:
-      - postgres
       - redis
     networks:
       - traefik-net
@@ -131,11 +127,10 @@ services:
       dockerfile: citas_service/Dockerfile
     container_name: medical_citas
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/medical_db
+      - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
     depends_on:
-      - postgres
       - redis
     networks:
       - traefik-net
@@ -151,11 +146,10 @@ services:
       dockerfile: logs_service/Dockerfile
     container_name: medical_logs
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/medical_db
+      - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
     depends_on:
-      - postgres
       - redis
     networks:
       - traefik-net
@@ -172,6 +166,8 @@ services:
     container_name: medical_frontend
     depends_on:
       - auth-service
+    ports:
+      - "3000:80"
     networks:
       - traefik-net
     labels:

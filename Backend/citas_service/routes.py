@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from common.auth_middleware import token_required
 from common.utils import success_response, error_response, get_pagination_params
-from citas_service.models import AppointmentModel, AppointmentTreatmentModel, AppointmentExtraModel
+from models import AppointmentModel, AppointmentTreatmentModel, AppointmentExtraModel
 
 citas_bp = Blueprint('citas', __name__)
 

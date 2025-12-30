@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.auth_middleware import token_required, role_required
 from common.utils import validate_email, success_response, error_response
 from common.config import Config
-from auth_service.models import UserModel, RoleModel
+from models import UserModel, RoleModel
 
 auth_bp = Blueprint('auth', __name__)
 

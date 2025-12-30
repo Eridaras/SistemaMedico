@@ -13,11 +13,8 @@ providers:
 entryPoints:
   web:
     address: ":3333"
-  dashboard:
-    address: ":8080"
 
 log:
   level: INFO
 
-accessLog:
-  enabled: true
+accessLog: {}

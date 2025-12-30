@@ -1,49 +1,26 @@
-# Multi-stage build for Next.js Frontend
-# Stage 1: Build
 FROM node:20-alpine AS builder
-
 WORKDIR /app
-
-# Copy package files
 COPY package.json package-lock.json ./
-
-# Install dependencies
 RUN npm ci
-
-# Copy source code
 COPY . .
-
-# Build Next.js app
 RUN npm run build
 
-# Stage 2: Production
-FROM nginx:1.25-alpine
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV production
 
-# Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
+RUN npm ci --omit=dev --ignore-scripts
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/.next ./.next
 
-# Copy built files from builder
-COPY --from=builder /app/out /usr/share/nginx/html
+RUN chown -R node:node /app
+USER node
 
-# Create non-root user
-RUN adduser -D -u 1000 appuser && \
-    chown -R appuser:appuser /usr/share/nginx/html && \
-    chown -R appuser:appuser /var/cache/nginx && \
-    chown -R appuser:appuser /var/log/nginx && \
-    touch /var/run/nginx.pid && \
-    chown -R appuser:appuser /var/run/nginx.pid
-
-USER appuser
-
-# Expose port
 EXPOSE 80
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start", "--", "-p", "80"]

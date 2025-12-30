@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from citas_service.routes import citas_bp
+from routes import citas_bp
 
 # Create Flask app
 app = Flask(__name__)

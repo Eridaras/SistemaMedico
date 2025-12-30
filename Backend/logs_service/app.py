@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from logs_service.routes import logs_bp
+from routes import logs_bp
 
 # Create Flask app
 app = Flask(__name__)

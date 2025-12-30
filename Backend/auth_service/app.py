@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from auth_service.swagger_config import api
-from auth_service.routes import auth_bp
+from swagger_config import api
+from routes import auth_bp
 
 # Create Flask app
 app = Flask(__name__)

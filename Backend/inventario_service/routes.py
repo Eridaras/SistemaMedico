@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from common.auth_middleware import token_required
 from common.utils import success_response, error_response, get_pagination_params
-from inventario_service.models import ProductModel, TreatmentModel, TreatmentRecipeModel
+from models import ProductModel, TreatmentModel, TreatmentRecipeModel
 
 inventario_bp = Blueprint('inventario', __name__)
 

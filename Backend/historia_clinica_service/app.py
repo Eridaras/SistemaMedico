@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from historia_clinica_service.routes import historia_clinica_bp
+from routes import historia_clinica_bp
 
 # Create Flask app
 app = Flask(__name__)

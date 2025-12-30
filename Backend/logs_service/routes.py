@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from common.auth_middleware import token_required
 from common.utils import success_response, error_response, get_pagination_params
-from logs_service.models import LogModel
+from models import LogModel
 
 logs_bp = Blueprint('logs', __name__)
 
