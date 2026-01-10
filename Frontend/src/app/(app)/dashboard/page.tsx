@@ -107,10 +107,10 @@ export default function DashboardPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: 'Ventas Totales', value: `$${stats?.ventas_totales.toFixed(2) || '0.00'}`, change: '+8.2%', trend: 'up' },
-          { label: 'Pacientes Nuevos', value: stats?.pacientes_nuevos.toString() || '0', change: '+5.4%', trend: 'up' },
-          { label: 'Citas Hoy', value: stats?.citas_hoy.toString() || '0', change: '+12%', trend: 'up' },
-          { label: 'Ingresos del Mes', value: `$${stats?.ingresos_mes.toFixed(2) || '0.00'}`, change: '+3.8%', trend: 'up' },
+          { label: 'Ingresos Totales', value: `$${stats?.total_income?.toFixed(2) || '0.00'}`, change: '+8.2%', trend: 'up' },
+          { label: 'Facturas', value: stats?.invoice_count?.toString() || '0', change: '+5.4%', trend: 'up' },
+          { label: 'Gastos Totales', value: `$${stats?.total_expenses?.toFixed(2) || '0.00'}`, change: '+12%', trend: 'down' },
+          { label: 'Ganancia', value: `$${stats?.profit?.toFixed(2) || '0.00'}`, change: `${stats?.profit_margin?.toFixed(1) || '0'}%`, trend: (stats?.profit || 0) >= 0 ? 'up' : 'down' },
         ].map((item, i) => (
           <Card key={i} className="border-border/50 shadow-sm transition-all hover:shadow-md">
             <CardContent className="p-6 flex flex-col gap-2">

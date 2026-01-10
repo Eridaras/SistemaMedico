@@ -6,181 +6,273 @@ services:
     container_name: medical_traefik
     command:
       - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:3333"
+      - "--api.dashboard=true"
+      - "--providers.file.filename=/etc/traefik/traefik-dynamic.yml"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
     ports:
-      - "3333:3333"
-      - "8080:8080"
+      - "80:80"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./backend/traefik.yml:/etc/traefik/traefik.yml:ro"
+      - ./traefik-dynamic.yml:/etc/traefik/traefik-dynamic.yml:ro
     networks:
       - traefik-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.dashboard.rule=PathPrefix(`/traefik`) || PathPrefix(`/api`)"
+      - "traefik.http.routers.dashboard.priority=100"
+      - "traefik.http.routers.dashboard.entrypoints=web"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/traefik"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-stripprefix"
     restart: unless-stopped
-
-# postgres:
-  #   image: postgres:16-alpine
-  #   container_name: medical_postgres
-  #   environment:
-  #     POSTGRES_DB: medical_db
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   networks:
-  #     - traefik-net
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   restart: unless-stopped
 
   redis:
     image: redis:7-alpine
     container_name: medical_redis
     networks:
-      - traefik-net
+      - medical-internal
     restart: unless-stopped
 
   auth-service:
+    image: medical/auth-service:local
     build:
-      context: ./backend
-      dockerfile: auth_service/Dockerfile
+      context: ./backend/auth_service
+      dockerfile: Dockerfile.dev
     container_name: medical_auth
     environment:
       - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-development-secret-key}
       - FLASK_ENV=development
+    volumes:
+      - ./backend/auth_service:/home/app
+      - ./backend/common:/home/common
+      - ./backend/keys:/home/keys:ro
+    command: gunicorn -w 1 -b 0.0.0.0:5000 --reload app:app
     depends_on:
       - redis
     networks:
       - traefik-net
+      - medical-internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
       - "traefik.http.routers.auth.rule=PathPrefix(`/api/auth`)"
+      - "traefik.http.routers.auth.priority=20"
+      - "traefik.http.routers.auth.entrypoints=web"
       - "traefik.http.services.auth.loadbalancer.server.port=5000"
     restart: unless-stopped
 
   inventario-service:
+    image: medical/inventario-service:local
     build:
-      context: ./backend
-      dockerfile: inventario_service/Dockerfile
+      context: ./backend/inventario_service
+      dockerfile: Dockerfile.dev
     container_name: medical_inventario
     environment:
       - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
+    volumes:
+      - ./backend/inventario_service:/home/app
+      - ./backend/common:/home/common
+      - ./backend/keys:/home/keys:ro
+    command: gunicorn -w 1 -b 0.0.0.0:5000 --reload app:app
     depends_on:
       - redis
     networks:
       - traefik-net
+      - medical-internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
       - "traefik.http.routers.inventario.rule=PathPrefix(`/api/inventario`)"
+      - "traefik.http.routers.inventario.priority=15"
+      - "traefik.http.routers.inventario.entrypoints=web"
       - "traefik.http.services.inventario.loadbalancer.server.port=5000"
     restart: unless-stopped
 
   historia-clinica-service:
+    image: medical/historia-service:local
     build:
-      context: ./backend
-      dockerfile: historia_clinica_service/Dockerfile
+      context: ./backend/historia_clinica_service
+      dockerfile: Dockerfile.dev
     container_name: medical_historia
     environment:
       - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
+    volumes:
+      - ./backend/historia_clinica_service:/home/app
+      - ./backend/common:/home/common
+      - ./backend/keys:/home/keys:ro
+    command: gunicorn -w 1 -b 0.0.0.0:5000 --reload app:app
     depends_on:
       - redis
     networks:
       - traefik-net
+      - medical-internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
       - "traefik.http.routers.historia.rule=PathPrefix(`/api/historia-clinica`)"
+      - "traefik.http.routers.historia.priority=15"
+      - "traefik.http.routers.historia.entrypoints=web"
       - "traefik.http.services.historia.loadbalancer.server.port=5000"
     restart: unless-stopped
 
   facturacion-service:
+    image: medical/facturacion-service:local
     build:
-      context: ./backend
-      dockerfile: facturacion_service/Dockerfile
+      context: ./backend/facturacion_service
+      dockerfile: Dockerfile.dev
     container_name: medical_facturacion
     environment:
       - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
+    volumes:
+      - ./backend/facturacion_service:/home/app
+      - ./backend/common:/home/common
+      - ./backend/keys:/home/keys:ro
+    command: gunicorn -w 1 -b 0.0.0.0:5000 --reload app:app
     depends_on:
       - redis
     networks:
       - traefik-net
+      - medical-internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
       - "traefik.http.routers.facturacion.rule=PathPrefix(`/api/facturacion`)"
+      - "traefik.http.routers.facturacion.priority=15"
+      - "traefik.http.routers.facturacion.entrypoints=web"
       - "traefik.http.services.facturacion.loadbalancer.server.port=5000"
     restart: unless-stopped
 
   citas-service:
+    image: medical/citas-service:local
     build:
-      context: ./backend
-      dockerfile: citas_service/Dockerfile
+      context: ./backend/citas_service
+      dockerfile: Dockerfile.dev
     container_name: medical_citas
     environment:
       - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
+    volumes:
+      - ./backend/citas_service:/home/app
+      - ./backend/common:/home/common
+      - ./backend/keys:/home/keys:ro
+    command: gunicorn -w 1 -b 0.0.0.0:5000 --reload app:app
     depends_on:
       - redis
     networks:
       - traefik-net
+      - medical-internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
       - "traefik.http.routers.citas.rule=PathPrefix(`/api/citas`)"
+      - "traefik.http.routers.citas.priority=15"
+      - "traefik.http.routers.citas.entrypoints=web"
       - "traefik.http.services.citas.loadbalancer.server.port=5000"
     restart: unless-stopped
 
   logs-service:
+    image: medical/logs-service:local
     build:
-      context: ./backend
-      dockerfile: logs_service/Dockerfile
+      context: ./backend/logs_service
+      dockerfile: Dockerfile.dev
     container_name: medical_logs
     environment:
       - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=development
+    volumes:
+      - ./backend/logs_service:/home/app
+      - ./backend/common:/home/common
+      - ./backend/keys:/home/keys:ro
+    command: gunicorn -w 1 -b 0.0.0.0:5000 --reload app:app
     depends_on:
       - redis
     networks:
       - traefik-net
+      - medical-internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
       - "traefik.http.routers.logs.rule=PathPrefix(`/api/logs`)"
+      - "traefik.http.routers.logs.priority=15"
+      - "traefik.http.routers.logs.entrypoints=web"
       - "traefik.http.services.logs.loadbalancer.server.port=5000"
     restart: unless-stopped
 
-  frontend:
+  notifications-service:
+    image: medical/notifications-service:local
     build:
-      context: ./Frontend
-      dockerfile: Dockerfile
-    container_name: medical_frontend
+      context: ./backend/notifications_service
+      dockerfile: Dockerfile.dev
+    container_name: medical_notifications
+    environment:
+      - DATABASE_URL=postgresql://neondb_owner:npg_jRyizbnEYQ18@ep-wandering-tooth-a4bc9k9a-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - REDIS_URL=redis://redis:6379/0
+      - FLASK_ENV=development
+    volumes:
+      - ./backend/notifications_service:/home/app
+      - ./backend/common:/home/common
+      - ./backend/keys:/home/keys:ro
+    command: gunicorn -w 1 -b 0.0.0.0:5000 --reload app:app
     depends_on:
-      - auth-service
-    ports:
-      - "3000:80"
+      - redis
     networks:
       - traefik-net
+      - medical-internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.notifications.rule=PathPrefix(`/api/notifications`)"
+      - "traefik.http.routers.notifications.priority=15"
+      - "traefik.http.routers.notifications.entrypoints=web"
+      - "traefik.http.services.notifications.loadbalancer.server.port=5000"
+    restart: unless-stopped
+
+  frontend:
+    image: medical/frontend:dev
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile.dev
+    container_name: medical_frontend
+    volumes:
+      - ./Frontend:/app/workspace:cached
+      - /app/workspace/node_modules
+      - /app/workspace/.next
+    environment:
+      - HOSTNAME=0.0.0.0
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    depends_on:
+      - auth-service
+    networks:
+      - traefik-net
+      - medical-internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
       - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
       - "traefik.http.routers.frontend.priority=1"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
     restart: unless-stopped
 
 networks:
   traefik-net:
     driver: bridge
     name: traefik-net
+  medical-internal:
+    driver: bridge
+    name: medical-internal
 
 volumes:
   postgres_data:

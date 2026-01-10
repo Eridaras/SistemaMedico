@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+WORKDIR /app/workspace
+
+# Copiar package files primero (mejor caching)
+COPY package*.json ./
+
+# Instalar dependencias
+RUN npm install
+
+# El código se monta como volumen, no se copia en build
+# Esto permite hot-reload automático
+
+# Exponer puerto de desarrollo
+EXPOSE 3000
+
+# Comando por defecto: next dev en modo desarrollo
+CMD ["npm", "run", "dev"]

@@ -62,10 +62,10 @@ class NotificationService:
                     a.end_time,
                     a.status,
                     a.reason,
-                    p.first_name || ' ' || p.last_name as patient_name,
+                    p.full_name as patient_name,
                     p.phone as patient_phone,
                     p.email as patient_email,
-                    p.doc_number
+                    p.identification as doc_number
                 FROM appointments a
                 LEFT JOIN patients p ON a.patient_id = p.patient_id
                 WHERE a.doctor_id = %s

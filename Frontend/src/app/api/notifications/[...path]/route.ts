@@ -1,126 +1,85 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const NOTIFICATIONS_SERVICE_URL = process.env.NOTIFICATIONS_SERVICE_URL || 'http://localhost:5007/api/notifications';
+const SERVICE_URL = process.env.NOTIFICATIONS_SERVICE_URL || 'http://medical_notifications:5000';
 
-export async function GET(
+async function handleRequest(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  pathArray: string[],
+  method: string
 ) {
-  const path = params.path.join('/');
-  const searchParams = request.nextUrl.searchParams.toString();
-  const url = `${NOTIFICATIONS_SERVICE_URL}/${path}${searchParams ? `?${searchParams}` : ''}`;
-
-  const token = request.headers.get('authorization');
+  const path = pathArray.join('/');
+  const url = `${SERVICE_URL}/api/notifications/${path}${request.nextUrl.search}`;
 
   try {
-    const response = await fetch(url, {
-      method: 'GET',
+    // Get Authorization header from request - check both cases
+    const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
+
+    // Log for debugging (remove in production)
+    if (!authHeader) {
+      console.warn('No Authorization header found in request to:', url);
+    }
+
+    const options: RequestInit = {
+      method,
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': token }),
+        ...(authHeader && { 'Authorization': authHeader }),
       },
-    });
+    };
 
+    if (method !== 'GET' && method !== 'HEAD') {
+      const body = await request.text();
+      if (body) options.body = body;
+    }
+
+    const response = await fetch(url, options);
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    console.error('Notifications service error:', error);
+    console.error('Notifications API Error:', error);
     return NextResponse.json(
-      { success: false, message: 'Service unavailable' },
-      { status: 503 }
+      { success: false, message: 'Error connecting to notifications service' },
+      { status: 500 }
     );
   }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const { path } = await params;
+  return handleRequest(request, path, 'GET');
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
-  const url = `${NOTIFICATIONS_SERVICE_URL}/${path}`;
-
-  const token = request.headers.get('authorization');
-  const body = await request.json();
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': token }),
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error('Notifications service error:', error);
-    return NextResponse.json(
-      { success: false, message: 'Service unavailable' },
-      { status: 503 }
-    );
-  }
+  const { path } = await params;
+  return handleRequest(request, path, 'POST');
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
-  const url = `${NOTIFICATIONS_SERVICE_URL}/${path}`;
+  const { path } = await params;
+  return handleRequest(request, path, 'PUT');
+}
 
-  const token = request.headers.get('authorization');
-  const body = await request.json();
-
-  try {
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': token }),
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error('Notifications service error:', error);
-    return NextResponse.json(
-      { success: false, message: 'Service unavailable' },
-      { status: 503 }
-    );
-  }
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const { path } = await params;
+  return handleRequest(request, path, 'DELETE');
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
-  const url = `${NOTIFICATIONS_SERVICE_URL}/${path}`;
-
-  const token = request.headers.get('authorization');
-  const body = await request.json().catch(() => ({}));
-
-  try {
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': token }),
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error('Notifications service error:', error);
-    return NextResponse.json(
-      { success: false, message: 'Service unavailable' },
-      { status: 503 }
-    );
-  }
+  const { path } = await params;
+  return handleRequest(request, path, 'PATCH');
 }

@@ -16,10 +16,12 @@ class InvoiceModel:
         """Get invoice by ID"""
         with db.get_cursor() as cursor:
             cursor.execute("""
-                SELECT i.invoice_id, i.patient_id, i.appointment_id, i.invoice_number,
-                       i.issue_date, i.subtotal, i.iva_rate, i.iva_amount, i.total_amount, i.status,
-                       p.first_name || ' ' || p.last_name as patient_name,
-                       p.doc_type, p.doc_number, p.email, p.phone, p.address
+                SELECT i.invoice_id, i.patient_id,
+                       i.invoice_date, i.subtotal, i.iva_percentage, i.iva, i.total, i.status,
+                       i.payment_method, i.authorization_number,
+                       p.full_name as patient_name,
+                       p.identification_type as doc_type, p.identification as doc_number,
+                       p.email, p.phone, p.address
                 FROM invoices i
                 LEFT JOIN patients p ON i.patient_id = p.patient_id
                 WHERE i.invoice_id = %s
@@ -30,9 +32,10 @@ class InvoiceModel:
     def list_invoices(limit=20, offset=0, status=None, date_from=None, date_to=None):
         """List invoices with filters"""
         query = """
-            SELECT i.invoice_id, i.patient_id, i.appointment_id, i.invoice_number,
-                   i.issue_date, i.subtotal, i.iva_rate, i.iva_amount, i.total_amount, i.status,
-                   p.first_name || ' ' || p.last_name as patient_name
+            SELECT i.invoice_id, i.patient_id,
+                   i.invoice_date, i.subtotal, i.iva_percentage, i.iva, i.total, i.status,
+                   i.payment_method,
+                   p.full_name as patient_name
             FROM invoices i
             LEFT JOIN patients p ON i.patient_id = p.patient_id
             WHERE 1=1
@@ -44,14 +47,14 @@ class InvoiceModel:
             params.append(status)
 
         if date_from:
-            query += " AND i.issue_date >= %s"
+            query += " AND i.invoice_date >= %s"
             params.append(date_from)
 
         if date_to:
-            query += " AND i.issue_date <= %s"
+            query += " AND i.invoice_date <= %s"
             params.append(date_to)
 
-        query += " ORDER BY i.issue_date DESC, i.invoice_id DESC LIMIT %s OFFSET %s"
+        query += " ORDER BY i.invoice_date DESC, i.invoice_id DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
         with db.get_cursor() as cursor:
@@ -69,11 +72,11 @@ class InvoiceModel:
             params.append(status)
 
         if date_from:
-            query += " AND issue_date >= %s"
+            query += " AND invoice_date >= %s"
             params.append(date_from)
 
         if date_to:
-            query += " AND issue_date <= %s"
+            query += " AND invoice_date <= %s"
             params.append(date_to)
 
         with db.get_cursor() as cursor:
@@ -152,11 +155,11 @@ class InvoiceModel:
         params = []
 
         if date_from:
-            query += " AND issue_date >= %s"
+            query += " AND invoice_date >= %s"
             params.append(date_from)
 
         if date_to:
-            query += " AND issue_date <= %s"
+            query += " AND invoice_date <= %s"
             params.append(date_to)
 
         query += " GROUP BY status"
@@ -361,19 +364,19 @@ class FinancialReportModel:
             # Get income (from invoices with status ISSUED or PAID)
             query_income = """
                 SELECT
-                    COALESCE(SUM(total_amount), 0) as total_income,
+                    COALESCE(SUM(total), 0) as total_income,
                     COUNT(*) as invoice_count
                 FROM invoices
-                WHERE status IN ('ISSUED', 'PAID')
+                WHERE status IN ('paid', 'pending')
             """
             params_income = []
 
             if date_from:
-                query_income += " AND issue_date >= %s"
+                query_income += " AND invoice_date >= %s"
                 params_income.append(date_from)
 
             if date_to:
-                query_income += " AND issue_date <= %s"
+                query_income += " AND invoice_date <= %s"
                 params_income.append(date_to)
 
             cursor.execute(query_income, params_income)
@@ -384,7 +387,7 @@ class FinancialReportModel:
                 SELECT
                     COALESCE(SUM(amount), 0) as total_expenses,
                     COUNT(*) as expense_count
-                FROM operational_expenses
+                FROM expenses
                 WHERE 1=1
             """
             params_expenses = []

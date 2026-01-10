@@ -1,0 +1,131 @@
+http:
+  routers:
+    # Dashboard de Traefik (API interno de Traefik, no confundir con /api/* de servicios)
+    dashboard:
+      rule: "PathPrefix(`/traefik`)"
+      service: api@internal
+      priority: 100
+      entryPoints:
+        - web
+      middlewares:
+        - dashboard-stripprefix
+
+    # Frontend (Next.js) - Prioridad más baja para catch-all
+    frontend:
+      rule: "PathPrefix(`/`)"
+      service: frontend-service
+      priority: 1
+      entryPoints:
+        - web
+
+    # Auth Service
+    auth:
+      rule: "PathPrefix(`/api/auth`)"
+      service: auth-service
+      priority: 20
+      entryPoints:
+        - web
+
+    # Inventario Service
+    inventario:
+      rule: "PathPrefix(`/api/inventario`)"
+      service: inventario-service
+      priority: 15
+      entryPoints:
+        - web
+
+    # Historia Clínica Service
+    historia:
+      rule: "PathPrefix(`/api/historia-clinica`)"
+      service: historia-service
+      priority: 15
+      entryPoints:
+        - web
+
+    # Facturación Service
+    facturacion:
+      rule: "PathPrefix(`/api/facturacion`)"
+      service: facturacion-service
+      priority: 15
+      entryPoints:
+        - web
+
+    # Citas Service
+    citas:
+      rule: "PathPrefix(`/api/citas`)"
+      service: citas-service
+      priority: 15
+      entryPoints:
+        - web
+
+    # Logs Service
+    logs:
+      rule: "PathPrefix(`/api/logs`)"
+      service: logs-service
+      priority: 15
+      entryPoints:
+        - web
+
+    # Notifications Service
+    notifications:
+      rule: "PathPrefix(`/api/notifications`)"
+      service: notifications-service
+      priority: 15
+      entryPoints:
+        - web
+
+  services:
+    # Frontend Service
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: "http://medical_frontend:3000"
+
+    # Auth Service
+    auth-service:
+      loadBalancer:
+        servers:
+          - url: "http://medical_auth:5000"
+
+    # Inventario Service
+    inventario-service:
+      loadBalancer:
+        servers:
+          - url: "http://medical_inventario:5000"
+
+    # Historia Clínica Service
+    historia-service:
+      loadBalancer:
+        servers:
+          - url: "http://medical_historia:5000"
+
+    # Facturación Service
+    facturacion-service:
+      loadBalancer:
+        servers:
+          - url: "http://medical_facturacion:5000"
+
+    # Citas Service
+    citas-service:
+      loadBalancer:
+        servers:
+          - url: "http://medical_citas:5000"
+
+    # Logs Service
+    logs-service:
+      loadBalancer:
+        servers:
+          - url: "http://medical_logs:5000"
+
+    # Notifications Service
+    notifications-service:
+      loadBalancer:
+        servers:
+          - url: "http://medical_notifications:5000"
+
+  middlewares:
+    # Middleware para quitar el prefijo /traefik del dashboard
+    dashboard-stripprefix:
+      stripPrefix:
+        prefixes:
+          - "/traefik"

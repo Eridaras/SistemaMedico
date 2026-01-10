@@ -27,7 +27,8 @@ class Config:
     JWT_AUDIENCE = os.getenv('JWT_AUDIENCE', 'sistema-medico-frontend')
 
     # RSA Keys paths
-    KEYS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'keys')
+    # Try Docker mount location first, then fall back to local path
+    KEYS_DIR = os.getenv('KEYS_DIR', '/home/keys') if os.path.exists('/home/keys') else os.path.join(os.path.dirname(os.path.dirname(__file__)), 'keys')
     JWT_PRIVATE_KEY_PATH = os.path.join(KEYS_DIR, 'jwt_private.pem')
     JWT_PUBLIC_KEY_PATH = os.path.join(KEYS_DIR, 'jwt_public.pem')
 

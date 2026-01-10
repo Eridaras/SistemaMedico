@@ -5,10 +5,11 @@ const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://medical_auth:50
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
-  const url = `${AUTH_SERVICE_URL}/api/auth/${path}`;
+  const { path } = await params;
+  const pathStr = path.join('/');
+  const url = `${AUTH_SERVICE_URL}/api/auth/${pathStr}`;
 
   try {
     const response = await fetch(url, {
@@ -32,10 +33,11 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/');
-  const url = `${AUTH_SERVICE_URL}/api/auth/${path}`;
+  const { path } = await params;
+  const pathStr = path.join('/');
+  const url = `${AUTH_SERVICE_URL}/api/auth/${pathStr}`;
 
   try {
     const body = await request.json();

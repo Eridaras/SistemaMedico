@@ -11,7 +11,10 @@ import {
   Package,
   Search,
   Settings,
-  HelpCircle
+  HelpCircle,
+  LogOut,
+  ClipboardList,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,8 +30,9 @@ import { AuthProvider } from '@/components/auth-provider';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/patients', icon: FileText, label: 'Historia Clínica' },
+  { href: '/patients', icon: ClipboardList, label: 'Historia Clínica' },
   { href: '/appointments', icon: Calendar, label: 'Agendamiento' },
+  { href: '/treatments', icon: Sparkles, label: 'Tratamientos' },
   { href: '/inventory', icon: Package, label: 'Inventario' },
   { href: '/billing', icon: Receipt, label: 'Facturación' },
 ];
@@ -101,6 +105,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <HelpCircle className="h-4 w-4" />
               Ayuda
             </Link>
+            <button
+              onClick={() => auth.logout()}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive w-full"
+            >
+              <LogOut className="h-4 w-4" />
+              Cerrar Sesión
+            </button>
           </nav>
         </div>
       </div>

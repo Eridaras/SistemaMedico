@@ -4,18 +4,21 @@ const SERVICE_URL = process.env.LOGS_SERVICE_URL || 'http://medical_logs:5000';
 
 async function handleRequest(
   request: NextRequest,
-  params: { path: string[] },
+  pathArray: string[],
   method: string
 ) {
-  const path = params.path.join('/');
+  const path = pathArray.join('/');
   const url = `${SERVICE_URL}/api/logs/${path}${request.nextUrl.search}`;
 
   try {
+    // Get Authorization header from request - check both cases
+    const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
+
     const options: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': request.headers.get('Authorization') || '',
+        ...(authHeader && { 'Authorization': authHeader }),
       },
     };
 
@@ -38,35 +41,40 @@ async function handleRequest(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'GET');
+  const { path } = await params;
+  return handleRequest(request, path, 'GET');
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'POST');
+  const { path } = await params;
+  return handleRequest(request, path, 'POST');
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'PUT');
+  const { path } = await params;
+  return handleRequest(request, path, 'PUT');
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'DELETE');
+  const { path } = await params;
+  return handleRequest(request, path, 'DELETE');
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'PATCH');
+  const { path } = await params;
+  return handleRequest(request, path, 'PATCH');
 }

@@ -17,13 +17,15 @@ import {
   Edit,
   CalendarPlus,
   FileText,
-  Loader2
+  Loader2,
+  Trash2
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PageTransition } from "@/components/page-transition";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Patient {
   patient_id: number;
@@ -37,6 +39,7 @@ interface Patient {
 
 export default function PatientsPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -77,15 +80,65 @@ export default function PatientsPage() {
     return () => clearTimeout(timer);
   }, [searchTerm, fetchPatients]);
 
+  const handleDeletePatient = async (patient: Patient) => {
+    const confirmed = confirm(
+      `¿Está seguro de que desea eliminar al paciente ${patient.first_name} ${patient.last_name}?\n\nEsta acción no se puede deshacer.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/api/historia-clinica/patients/${patient.patient_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${auth.getToken()}`
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast({
+          title: "Paciente Eliminado",
+          description: `${patient.first_name} ${patient.last_name} ha sido eliminado exitosamente.`
+        });
+        // Refrescar la lista de pacientes
+        fetchPatients(searchTerm);
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "No se pudo eliminar el paciente",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al eliminar el paciente",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <PageTransition className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
       {/* Page Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Listado de Pacientes</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Historia Clínica</h1>
+          <p className="text-sm text-muted-foreground mt-1">Gestiona los pacientes y su información médica</p>
+        </div>
+        <Link href="/patients/new">
+          <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 shadow-sm">
+            <Plus className="h-5 w-5" />
+            Nuevo Paciente
+          </Button>
+        </Link>
       </div>
 
       <div className="bg-card rounded-xl border border-border shadow-sm p-6">
-        {/* Search and Action Bar */}
+        {/* Search Bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
           <div className="w-full md:max-w-md relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -96,12 +149,9 @@ export default function PatientsPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Link href="/patients/new">
-            <Button className="w-full md:w-auto gap-2 bg-primary hover:bg-primary/90">
-              <Plus className="h-4 w-4" />
-              Agregar Paciente
-            </Button>
-          </Link>
+          <div className="text-sm text-muted-foreground">
+            {patients.length} paciente{patients.length !== 1 ? 's' : ''} encontrado{patients.length !== 1 ? 's' : ''}
+          </div>
         </div>
 
         {/* Patients Table */}
@@ -178,6 +228,15 @@ export default function PatientsPage() {
                             <FileText className="h-4 w-4" />
                           </Button>
                         </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          title="Eliminar paciente"
+                          onClick={() => handleDeletePatient(patient)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

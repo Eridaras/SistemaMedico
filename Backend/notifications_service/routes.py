@@ -111,14 +111,20 @@ def get_today_appointments(current_user):
     try:
         doctor_id = request.args.get('doctor_id', type=int)
 
-        # If not specified, use current user (if they're a doctor)
+        # If not specified, allow admins to see all appointments
         if not doctor_id:
-            if current_user.get('role') != 'doctor':
-                return error_response('Only doctors can view appointment reminders', 403)
-            doctor_id = current_user['user_id']
+            # Admin (role_id=1) can view all, doctors (role_id=2) view their own
+            if current_user.get('role_id') == 1:
+                # Admin without doctor_id specified - get all appointments
+                pass  # doctor_id remains None, will fetch all
+            elif current_user.get('role_id') == 2:
+                # Doctor - show their appointments
+                doctor_id = current_user['user_id']
+            else:
+                return error_response('Only doctors and admins can view appointment reminders', 403)
 
-        # Admins can view any doctor's appointments
-        if current_user.get('role') != 'admin' and doctor_id != current_user['user_id']:
+        # Non-admins can only view their own appointments
+        if current_user.get('role_id') != 1 and doctor_id and doctor_id != current_user['user_id']:
             return error_response('Unauthorized', 403)
 
         appointments_data = NotificationService.get_today_appointments_for_doctor(doctor_id)
@@ -369,7 +375,7 @@ def send_reminders_now(current_user):
                         a.doctor_id,
                         a.reason,
                         p.patient_id,
-                        p.first_name || ' ' || p.last_name as patient_name,
+                        p.full_name as patient_name,
                         p.email as patient_email,
                         p.phone as patient_phone,
                         u.full_name as doctor_name

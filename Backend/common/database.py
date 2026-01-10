@@ -68,35 +68,60 @@ class Database:
     @contextmanager
     def get_connection(self, retry=3):
         """
-        Get a connection from the pool with automatic retry
-
-        Args:
-            retry: Number of retry attempts on connection failure
+        Get a connection from the pool with automatic retry and validation logic.
+        Handles server-side closed connections (common in serverless DBs like Neon).
         """
         connection = None
-        last_error = None
-
+        
+        # 1. Retry logic to GET a valid connection
         for attempt in range(retry):
             try:
                 connection = self.connection_pool.getconn()
-                yield connection
-                break
-            except psycopg2.OperationalError as e:
-                last_error = e
-                self.stats['retries'] += 1
-                if attempt < retry - 1:
-                    time.sleep(0.5 * (attempt + 1))  # Exponential backoff
+                
+                # Check if logically closed
+                if connection.closed != 0:
+                    try: self.connection_pool.putconn(connection, close=True)
+                    except: pass
+                    connection = None
                     continue
-                else:
-                    self.stats['errors'] += 1
-                    raise
-            except Exception as e:
-                last_error = e
-                self.stats['errors'] += 1
-                raise
-            finally:
+
+                # Check connectivity with SELECT 1
+                try:
+                    with connection.cursor() as cur:
+                        cur.execute('SELECT 1')
+                except (psycopg2.OperationalError, psycopg2.InterfaceError):
+                    # Connection failed check
+                    try: self.connection_pool.putconn(connection, close=True)
+                    except: pass
+                    connection = None
+                    continue
+                
+                # If we got here, connection is nice and valid
+                break
+
+            except Exception:
                 if connection:
-                    self.connection_pool.putconn(connection)
+                    try: self.connection_pool.putconn(connection, close=True)
+                    except: pass
+                    connection = None
+                
+                if attempt == retry - 1:
+                    raise
+                time.sleep(0.5 * (attempt + 1))
+        
+        if connection is None:
+            raise psycopg2.OperationalError("Could not get a valid connection from pool")
+
+        # 2. Yield connection and handle return to pool
+        try:
+            yield connection
+            self.connection_pool.putconn(connection)
+        except Exception:
+            # If an error occurs during usage, discard the connection to be safe
+            if connection:
+                try: self.connection_pool.putconn(connection, close=True)
+                except: pass
+            raise
 
     @contextmanager
     def get_cursor(self, commit=False, retry=3):

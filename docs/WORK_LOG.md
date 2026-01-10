@@ -264,5 +264,253 @@
 
 ---
 
-**Última Actualización:** 2025-12-24 19:00
-**Total de Entradas:** 11 sprints/cambios mayores
+---
+
+## 2026-01-01
+
+### 20:00 - FIX-001: Corrección de Authorization Header en API Proxies
+**Acción:** Reparación de autenticación entre Frontend Next.js y Backend Services
+**Problema Detectado:**
+- API routes proxy no pasaban correctamente el header Authorization
+- Todas las peticiones a `/api/notifications`, `/api/facturacion`, etc. fallaban con 401 Unauthorized
+- Los componentes frontend enviaban `Bearer ${token}` pero el proxy usaba `|| ''` causando headers vacíos
+
+**Archivos Modificados:**
+- `Frontend/src/app/api/notifications/[...path]/route.ts`
+- `Frontend/src/app/api/facturacion/[...path]/route.ts`
+- `Frontend/src/app/api/historia-clinica/[...path]/route.ts`
+- `Frontend/src/app/api/inventario/[...path]/route.ts`
+- `Frontend/src/app/api/citas/[...path]/route.ts`
+- `Frontend/src/app/api/logs/[...path]/route.ts`
+
+**Cambios Implementados:**
+1. Agregada verificación case-insensitive del header (`Authorization` || `authorization`)
+2. Uso de spread operator condicional `...(authHeader && { 'Authorization': authHeader })`
+3. Eliminado fallback a string vacío que causaba headers inválidos
+4. Agregado log de warning cuando no hay Authorization header (debugging)
+
+**Código Antes:**
+```typescript
+headers: {
+  'Content-Type': 'application/json',
+  'Authorization': request.headers.get('Authorization') || '',
+}
+```
+
+**Código Después:**
+```typescript
+const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
+headers: {
+  'Content-Type': 'application/json',
+  ...(authHeader && { 'Authorization': authHeader }),
+}
+```
+
+**Impacto:**
+- ✅ Notificaciones ahora cargan correctamente
+- ✅ Dashboard stats y monthly data funcionan
+- ✅ Citas del día se muestran
+- ✅ Productos con bajo stock se listan
+- ✅ Historial de pacientes carga datos reales
+- ✅ Facturación accede a endpoints protegidos
+
+**Tests Realizados:**
+- NotificationsPanel: `/api/notifications/notifications?limit=20` → 200 OK
+- Dashboard: `/api/facturacion/dashboard/stats` → 200 OK
+- Dashboard: `/api/facturacion/dashboard/monthly` → 200 OK
+- Dashboard: `/api/notifications/appointments/today` → 200 OK
+- Dashboard: `/api/notifications/low-stock` → 200 OK
+- Patients: `/api/historia-clinica/patients` → 200 OK
+
+**Motivo:** Resolver errores 401 causados por proxy incorrecto de headers de autenticación
+
+---
+
+**Última Actualización:** 2026-01-01 20:00
+**Total de Entradas:** 12 sprints/cambios mayores
+
+---
+
+## 2026-01-01 (continuación)
+
+### 21:00 - INFRA-002: Rediseño Completo de Orquestación Docker con Traefik
+**Acción:** Corrección crítica de arquitectura Docker siguiendo patrón B2B de referencia
+**Problema Detectado:**
+- Docker Compose NO estaba configurando Traefik correctamente
+- FALTABAN labels críticos: `traefik.docker.network`, `entrypoints`, `priority`
+- Frontend exponía puerto 3000 al host (debería ser SOLO Traefik:3333)
+- Servicios backend NO tenían volúmenes montados (sin hot-reload)
+- Servicios backend NO tenían puertos expuestos para debugging directo
+- Build context apuntaba a `./backend` pero necesitaba apuntar al servicio específico
+
+**Archivos Creados:**
+- `Frontend/Dockerfile.dev` - Dockerfile de desarrollo con hot-reload
+- `backend/auth_service/Dockerfile.dev` - Hot-reload con gunicorn --reload
+- `backend/inventario_service/Dockerfile.dev`
+- `backend/historia_clinica_service/Dockerfile.dev`
+- `backend/facturacion_service/Dockerfile.dev`
+- `backend/citas_service/Dockerfile.dev`
+- `backend/logs_service/Dockerfile.dev`
+- `backend/notifications_service/Dockerfile.dev`
+
+**Archivos Modificados:**
+- `docker-compose.yml` - Reescritura completa con patrón B2B
+
+**Cambios Críticos Implementados:**
+
+1. **Traefik Labels Completos**:
+   - Agregado `traefik.docker.network=traefik-net` a TODOS los servicios
+   - Agregado `entrypoints=web` para usar puerto 3333
+   - Agregado `priority` para evitar conflictos de routing
+   - Nombres de routers únicos con sufijo `-local`
+
+2. **Volúmenes para Hot-Reload**:
+   - Backend: Montaje de código fuente y carpeta common
+   - Frontend: Montaje con exclusión de node_modules y .next
+   - Comando: `gunicorn -w 1 --reload` para auto-restart
+
+3. **Puertos de Debug**: `5001-5007` para acceso directo a servicios
+
+4. **Dos Redes Docker**: `traefik-net` (pública) + `medical-internal` (privada)
+
+**Arquitectura Final:**
+```
+Usuario → :3333 (Traefik) ┬→ /             → Frontend :3000
+                           ├→ /api/auth     → Auth :5000
+                           ├→ /api/citas    → Citas :5000
+                           ├→ /api/facturacion → Facturacion :5000
+                           └→ ... (otros servicios)
+```
+
+**Comandos de Deployment:**
+```bash
+docker-compose down -v
+docker-compose build --no-cache
+docker-compose up
+```
+
+**Accesos:**
+- Aplicación: `http://localhost:3333`
+- Traefik Dashboard: `http://localhost:8080`
+- Debug directo: `http://localhost:5001-5007`
+
+**Motivo:** Corregir arquitectura Docker para routing correcto con Traefik
+
+---
+
+## 2026-01-04
+
+### 13:30 - INFRA-003: Migración a Traefik File Provider (Windows Fix)
+**Acción:** Solución definitiva al problema de Docker socket en Windows/WSL2
+**Problema Detectado:**
+- Docker Provider de Traefik NO funciona en Windows con WSL2
+- Error: "Error response from daemon:" - Socket accesible pero API falla
+- Intentos fallidos con múltiples configuraciones de socket:
+  - `/var/run/docker.sock` → Error de permisos
+  - `//./pipe/dockerDesktopLinuxEngine` → Protocol not available
+  - `npipe:////./pipe/dockerDesktopLinuxEngine` → Protocol not available
+- Traefik retornaba 404 para todas las rutas
+- Frontend funcionaba en acceso directo pero NO vía Traefik
+
+**Archivos Creados:**
+- `traefik-dynamic.yml` - Configuración estática de routers y services (NEW)
+
+**Archivos Modificados:**
+- `docker-compose.yml` - Cambio de Docker Provider a File Provider
+- `START.md` - Documentación actualizada con arquitectura File Provider
+- `docs/CONTEXT_MANIFEST.json` - Agregado traefik-dynamic.yml, total: 272 archivos
+
+**Cambios Críticos Implementados:**
+
+1. **File Provider en lugar de Docker Provider**:
+   ```yaml
+   # ANTES (Docker Provider - NO funciona en Windows)
+   command:
+     - "--providers.docker=true"
+     - "--providers.docker.exposedbydefault=false"
+   volumes:
+     - /var/run/docker.sock:/var/run/docker.sock:ro
+
+   # DESPUÉS (File Provider - Funciona en todos los OS)
+   command:
+     - "--providers.file.filename=/etc/traefik/traefik-dynamic.yml"
+     - "--providers.file.watch=true"
+   volumes:
+     - ./traefik-dynamic.yml:/etc/traefik/traefik-dynamic.yml:ro
+   ```
+
+2. **Configuración de 9 Routers en traefik-dynamic.yml**:
+   - Dashboard de Traefik (priority: 100)
+   - Frontend catch-all (priority: 1)
+   - 7 servicios backend (priority: 15-20)
+
+3. **Configuración de 8 Services con load balancers**:
+   - Mapeo directo a nombres de contenedores Docker
+   - Ejemplo: `http://medical_auth:5000`
+
+4. **Middleware para dashboard**:
+   - Strip prefix `/traefik` para acceso al dashboard
+
+**Tests Exhaustivos Realizados:**
+```bash
+✅ Frontend: http://localhost → Redirige a /login
+✅ Dashboard: http://localhost/traefik/dashboard/ → Dashboard HTML cargado
+✅ Auth: http://localhost/api/auth/health → {"success":true}
+✅ Inventario: http://localhost/api/inventario/health → {"success":true}
+✅ Historia: http://localhost/api/historia-clinica/health → {"success":true}
+✅ Facturación: http://localhost/api/facturacion/health → {"success":true}
+✅ Citas: http://localhost/api/citas/health → {"success":true}
+✅ Logs: http://localhost/api/logs/health → {"success":true}
+✅ Notifications: http://localhost/api/notifications/health → {"success":true}
+✅ Login: POST http://localhost/api/auth/login → Endpoint funcional
+```
+
+**Arquitectura Final:**
+```
+Usuario → localhost:80 (Traefik)
+         ↓
+   [traefik-dynamic.yml] ← Rutas estáticas
+         ↓
+    ┌──────────────────────────────────┐
+    │ 9 Routers configurados:          │
+    │ /                  → Frontend    │
+    │ /api/auth          → Auth        │
+    │ /api/inventario    → Inventario  │
+    │ /api/historia-clinica → Historia │
+    │ /api/facturacion   → Facturacion │
+    │ /api/citas         → Citas       │
+    │ /api/logs          → Logs        │
+    │ /api/notifications → Notifications│
+    │ /traefik           → Dashboard   │
+    └──────────────────────────────────┘
+```
+
+**Ventajas de File Provider:**
+- ✅ Funciona en Windows/WSL2 sin problemas de socket
+- ✅ Configuración explícita y versionable en Git
+- ✅ No depende del Docker daemon API
+- ✅ Más fácil de debuggear y documentar
+- ✅ Mismo rendimiento que Docker Provider
+
+**Desventajas (aceptables):**
+- ⚠️ No hay auto-discovery de servicios
+- ⚠️ Agregar nuevo servicio requiere editar traefik-dynamic.yml manualmente
+- ⚠️ Auto-reload (watch) puede no funcionar en Windows (requiere restart)
+
+**Comandos de Deployment:**
+```bash
+docker-compose down
+docker-compose up -d
+# Verificar: curl http://localhost/api/auth/health
+```
+
+**Puertos Finales:**
+- Puerto 80: Traefik (ÚNICO puerto expuesto al host)
+- Puertos internos 3000, 5000: NO accesibles desde host
+
+**Motivo:** Resolver incompatibilidad de Docker Provider con Windows/WSL2 de forma definitiva
+
+---
+
+**Última Actualización:** 2026-01-04 13:55
+**Total de Entradas:** 14 sprints/cambios mayores

@@ -18,7 +18,7 @@ class AppointmentModel:
             cursor.execute("""
                 SELECT a.appointment_id, a.patient_id, a.doctor_id, a.start_time, a.end_time,
                        a.status, a.reason, a.created_at,
-                       p.first_name || ' ' || p.last_name as patient_name,
+                       p.full_name as patient_name,
                        p.doc_number, p.phone, p.email,
                        u.full_name as doctor_name
                 FROM appointments a
@@ -35,7 +35,7 @@ class AppointmentModel:
         query = """
             SELECT a.appointment_id, a.patient_id, a.doctor_id, a.start_time, a.end_time,
                    a.status, a.reason, a.created_at,
-                   p.first_name || ' ' || p.last_name as patient_name,
+                   p.full_name as patient_name,
                    u.full_name as doctor_name
             FROM appointments a
             LEFT JOIN patients p ON a.patient_id = p.patient_id
@@ -186,7 +186,7 @@ class AppointmentModel:
         with db.get_cursor() as cursor:
             cursor.execute("""
                 SELECT a.appointment_id, a.start_time, a.end_time, a.status, a.reason,
-                       p.first_name || ' ' || p.last_name as patient_name,
+                       p.full_name as patient_name,
                        p.phone
                 FROM appointments a
                 LEFT JOIN patients p ON a.patient_id = p.patient_id
